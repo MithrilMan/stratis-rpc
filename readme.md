@@ -1,0 +1,1 @@
+`RestClientRpcService` is the most performant implementation and support RPC Batch, it's useful to compare performance betweens different node implementations (e.g. SBFN and X)
