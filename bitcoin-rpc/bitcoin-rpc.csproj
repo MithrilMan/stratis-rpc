@@ -1,0 +1,14 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <RootNamespace>bitcoin_rpc</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="BitcoinLib" Version="1.15.0" />
+    <PackageReference Include="Easy.Common" Version="3.5.0" />
+  </ItemGroup>
+
+</Project>
