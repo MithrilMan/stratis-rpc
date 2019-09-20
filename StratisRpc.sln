@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29215.179
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "bitcoin-rpc", "bitcoin-rpc\bitcoin-rpc.csproj", "{AC9C3C8D-BA07-412A-B679-AD5310EE60CA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StratisRpc", "bitcoin-rpc\StratisRpc.csproj", "{AC9C3C8D-BA07-412A-B679-AD5310EE60CA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

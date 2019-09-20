@@ -1,18 +1,23 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Net;
+using System.Linq;
 
-namespace bitcoin_rpc
+namespace StratisRpc
 {
     class Program
     {
         private const string API_URL = "http://localhost:37221/api";
 
-        private const string RPC_URL_X = "http://nodemccx:16174";
-        private const string RPC_URL_SBFN = "http://localhost:16174";
-        private static Stopwatch sw = new Stopwatch();
+        private static IPEndPoint RPC_URL_X = new IPEndPoint(Dns.GetHostAddresses("nodemccx").First(a => a.AddressFamily== System.Net.Sockets.AddressFamily.InterNetwork), 16174);
+        private static IPEndPoint RPC_URL_SBFN = new IPEndPoint(Dns.GetHostAddresses("localhost").First(a => a.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork), 16174);
 
         private static BitcoinlibRpcService bitcoinlibRpcServiceX = new BitcoinlibRpcService("X Node", RPC_URL_X, "stratis", "node", "node", 60);
         private static BitcoinlibRpcService bitcoinlibRpcServiceSbfn = new BitcoinlibRpcService("SBFN", RPC_URL_SBFN, "stratis", "node", "node", 60);
+
+        private static BitcoinCliRpcService BitcoinCliRpcServiceX = new BitcoinCliRpcService("X Node", @"E:\Sviluppo\InternalTestnet\Util\bitcoin-cli.exe", RPC_URL_X, "stratis", "node", "node", 60);
+        private static BitcoinCliRpcService BitcoinCliRpcServiceSbfn = new BitcoinCliRpcService("SBFN", @"E:\Sviluppo\InternalTestnet\Util\bitcoin-cli.exe", RPC_URL_SBFN, "stratis", "node", "node", 60);
+
         private static RestClientRpcService restClientX = new RestClientRpcService("X Node", RPC_URL_X, "stratis", "node", "node", 60);
         private static RestClientRpcService restClientSbfn = new RestClientRpcService("SBFN", RPC_URL_SBFN, "stratis", "node", "node", 60);
 
@@ -20,6 +25,8 @@ namespace bitcoin_rpc
         {
             bitcoinlibRpcServiceX,
             bitcoinlibRpcServiceSbfn,
+            BitcoinCliRpcServiceX,
+            BitcoinCliRpcServiceSbfn,
             restClientX,
             restClientSbfn
         };

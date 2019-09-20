@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace bitcoin_rpc
+namespace StratisRpc
 {
     public interface IRpcService
     {

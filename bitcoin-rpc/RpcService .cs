@@ -7,7 +7,7 @@ using System.Linq;
 using System.Net;
 using System.Text;
 
-namespace bitcoin_rpc
+namespace StratisRpc
 {
     public abstract class RpcService : IRpcService
     {

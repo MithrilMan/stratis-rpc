@@ -10,7 +10,7 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace bitcoin_rpc
+namespace StratisRpc
 {
     public class RestClientRpcService : RpcService
     {

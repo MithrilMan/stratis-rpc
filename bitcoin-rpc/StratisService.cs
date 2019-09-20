@@ -9,7 +9,7 @@ using System.IO;
 using System.Net;
 using System.Text;
 
-namespace bitcoin_rpc
+namespace StratisRpc
 {
     public class StratisService : CryptocoinService
     {

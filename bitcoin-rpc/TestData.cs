@@ -1,4 +1,4 @@
-﻿namespace bitcoin_rpc
+﻿namespace StratisRpc
 {
     public static class TestData
     {

@@ -2,7 +2,7 @@
 using System.Diagnostics;
 using System.Net;
 
-namespace bitcoin_rpc
+namespace StratisRpc
 {
     public class BitcoinlibRpcService : RpcService
     {

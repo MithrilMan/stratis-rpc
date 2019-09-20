@@ -3,7 +3,8 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp2.2</TargetFramework>
-    <RootNamespace>bitcoin_rpc</RootNamespace>
+    <RootNamespace>StratisRpc</RootNamespace>
+    <AssemblyName>StratisRpc</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>
