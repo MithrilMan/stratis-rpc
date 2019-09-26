@@ -1,15 +1,13 @@
 ﻿using BitcoinLib.ExceptionHandling.Rpc;
 using BitcoinLib.RPC.RequestResponse;
-using BitcoinLib.Services;
 using BitcoinLib.Services.Coins.Cryptocoin;
 using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Text;
 
-namespace StratisRpc
+namespace StratisRpc.RpcService.Bitcoinlib
 {
     public class StratisService : CryptocoinService
     {

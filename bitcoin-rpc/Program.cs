@@ -1,91 +1,103 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Net;
 using System.Linq;
+using StratisRpc.CallRequest;
+using StratisRpc.RpcService.RestClient;
+using StratisRpc.RpcService.Bitcoinlib;
+using StratisRpc.RpcService.BitcoinCli;
+using StratisRpc.Performance;
 
 namespace StratisRpc
 {
     class Program
     {
-        private const string API_URL = "http://localhost:37221/api";
 
-        private static IPEndPoint RPC_URL_X = new IPEndPoint(Dns.GetHostAddresses("nodemccx").First(a => a.AddressFamily== System.Net.Sockets.AddressFamily.InterNetwork), 16174);
-        private static IPEndPoint RPC_URL_SBFN = new IPEndPoint(Dns.GetHostAddresses("localhost").First(a => a.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork), 16174);
-
-        private static BitcoinlibRpcService bitcoinlibRpcServiceX = new BitcoinlibRpcService("X Node", RPC_URL_X, "stratis", "node", "node", 60);
-        private static BitcoinlibRpcService bitcoinlibRpcServiceSbfn = new BitcoinlibRpcService("SBFN", RPC_URL_SBFN, "stratis", "node", "node", 60);
-
-        private static BitcoinCliRpcService BitcoinCliRpcServiceX = new BitcoinCliRpcService("X Node", @"E:\Sviluppo\InternalTestnet\Util\bitcoin-cli.exe", RPC_URL_X, "stratis", "node", "node", 60);
-        private static BitcoinCliRpcService BitcoinCliRpcServiceSbfn = new BitcoinCliRpcService("SBFN", @"E:\Sviluppo\InternalTestnet\Util\bitcoin-cli.exe", RPC_URL_SBFN, "stratis", "node", "node", 60);
-
-        private static RestClientRpcService restClientX = new RestClientRpcService("X Node", RPC_URL_X, "stratis", "node", "node", 60);
-        private static RestClientRpcService restClientSbfn = new RestClientRpcService("SBFN", RPC_URL_SBFN, "stratis", "node", "node", 60);
-
-        private static IRpcService[] rpcServices =
-        {
-            bitcoinlibRpcServiceX,
-            bitcoinlibRpcServiceSbfn,
-            BitcoinCliRpcServiceX,
-            BitcoinCliRpcServiceSbfn,
-            restClientX,
-            restClientSbfn
-        };
+        private static IRpcService[] rpcServices;
 
         static void Main(string[] args)
         {
-            foreach (var service in rpcServices)
-            {
-                CallNTimes(service, 5, false);
-            }
+            InitializeConnectors();
 
-            foreach (var service in rpcServices)
-            {
-                CallBatch(service, 10, false);
-            }
-            //CallBatch(bitcoinlibRpcServiceSbfn, 10, false);
-            //CallBatch(bitcoinlibRpcServiceSbfn, 10, false);
-            //CallBatch(bitcoinlibRpcServiceSbfn, 10, false);
-            //CallBatch(bitcoinlibRpcServiceSbfn, 10, false);
-
-
-            //CallBatch(sw, false, 5);
-            //CallBatch(sw, false, 10);
-            //CallBatch(sw, false, 20);
-            //CallBatch(sw, false, 40);
-
-            //Console.WriteLine("Call API endpoint 5 times synchronously");
-            //CallApi(sw, true);
-            //CallApi(sw, true);
-            //CallApi(sw, true);
-            //CallApi(sw, true);
-            //CallApi(sw, true);
-
-            //Console.WriteLine("Call API endpoint 5 times asynchronously");
-            //CallMultipleApiAsync(sw, true, 10);
-
-
-            //CallMultiple(sw, 3);
+            DoTests();
 
             Console.WriteLine();
         }
 
-        private static void CallBatch(IRpcService service, int batchSize, bool showResult)
+        private static void InitializeConnectors()
         {
-            service.TestThis($"Call Batch RPC", () =>
+            IPEndPoint getEndPoint(string hostName, int port)
             {
-                service.CallBatch(showResult, batchSize);
-            });
+                IPAddress address = Dns.GetHostAddresses(hostName).First(a => a.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork);
+                return new IPEndPoint(address, port);
+            }
+
+            var settings = new
+            {
+                rpcPort = 16174,
+                rpcUser = "stratis",
+                rpcPassword = "node",
+                walletPassword = "node",
+                timeout = (short)360,
+                bitcoinCliPath = @"E:\Sviluppo\InternalTestnet\Util\bitcoin-cli.exe"
+            };
+
+            IPEndPoint rpcUrlX = getEndPoint("nodemccx", settings.rpcPort);
+            IPEndPoint rpcUrlSbfn = getEndPoint("nodemca", settings.rpcPort);
+            IPEndPoint rpcUrlSbfnLocal = getEndPoint("localhost", settings.rpcPort);
+
+            rpcServices = new IRpcService[] {
+                new BitcoinlibRpcService("X Node", rpcUrlX, settings.rpcUser, settings.rpcPassword, settings.walletPassword, settings.timeout),
+                new BitcoinlibRpcService("SBFN", rpcUrlSbfn, settings.rpcUser, settings.rpcPassword, settings.walletPassword, settings.timeout),
+                new BitcoinCliRpcService("X Node", settings.bitcoinCliPath, rpcUrlX, settings.rpcUser, settings.rpcPassword, settings.walletPassword, settings.timeout),
+                new BitcoinCliRpcService("SBFN", settings.bitcoinCliPath, rpcUrlSbfn, settings.rpcUser, settings.rpcPassword, settings.walletPassword, settings.timeout),
+                new RestClientRpcService("X Node", rpcUrlX, settings.rpcUser, settings.rpcPassword, settings.walletPassword, settings.timeout),
+                new RestClientRpcService("SBFN", rpcUrlSbfn, settings.rpcUser, settings.rpcPassword, settings.walletPassword, settings.timeout),
+            };
+
+            // uncomment line below to filter only RestClient implementation
+            rpcServices = rpcServices.OfType<RestClientRpcService>().ToArray();
         }
 
-        private static void CallNTimes(IRpcService service, int count, bool showResult)
+        private static void DoTests()
         {
-            service.TestThis($"Call sequentially {count} times ", () =>
+            CallNTimes(TestRequestFactory.CreateRequestFor(MethodToTest.GetBlockCount), 20, false);
+            CallNTimes(TestRequestFactory.CreateRequestFor(MethodToTest.GetTransaction), 20, false);
+            CallNTimes(TestRequestFactory.CreateRequestFor(MethodToTest.GetRawTransaction), 20, false);
+
+            //CallBatch(TestRequestFactory.CreateRequestFor(MethodToTest.GetRawTransaction), 1, true);
+            //CallBatch(TestRequestFactory.CreateRequestFor(MethodToTest.GetRawTransaction), 10, false);
+            //CallBatch(TestRequestFactory.CreateRequestFor(MethodToTest.GetRawTransaction), 15, false);
+            //CallBatch(TestRequestFactory.CreateRequestFor(MethodToTest.GetRawTransaction), 30, true);
+            //CallBatch(TestRequestFactory.CreateRequestFor(MethodToTest.GetRawTransaction), 60, false);
+            //CallBatch(TestRequestFactory.CreateRequestFor(MethodToTest.GetRawTransaction), 120, false);
+        }
+
+        private static void CallNTimes(TestRequest request, int count, bool showPartialResult)
+        {
+            foreach (var service in rpcServices)
             {
-                for (int _ = 0; _ < count; _++)
+                using (PerformanceCollector performanceCollector = new PerformanceCollector(service.GetServiceDescription(), showPartialResult))
                 {
-                    service.CallSingle(showResult);
+                    performanceCollector.AddText($"Call {request.MethodToTest} sequentially {count} times\n");
+
+                    for (int _ = 0; _ < count; _++)
+                    {
+                        performanceCollector.Measure(() => service.CallSingle(request));
+                    }
                 }
-            });
+            }
+        }
+
+        private static void CallBatch(TestRequest request, int batchSize, bool showPartialResult)
+        {
+            foreach (var service in rpcServices)
+            {
+                using (PerformanceCollector performanceCollector = new PerformanceCollector(service.GetServiceDescription(), showPartialResult))
+                {
+                    performanceCollector.AddText($"Call Batch RPC of { batchSize} requests");
+                    performanceCollector.Measure(() => service.CallBatch(Enumerable.Range(0, batchSize).Select(n => request).ToList()));
+                }
+            }
         }
     }
 }

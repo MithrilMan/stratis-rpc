@@ -1,21 +1,16 @@
-﻿using BitcoinLib.RPC.RequestResponse;
-using Easy.Common;
-using Newtonsoft.Json;
+﻿using StratisRpc.CallRequest;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Text;
 using System.Threading.Tasks;
 
-namespace StratisRpc
+namespace StratisRpc.RpcService.RestClient
 {
-    public class RestClientRpcService : RpcService
+    public class RestClientRpcService : RpcServiceBase
     {
         private string rpcUrl;
-        protected readonly RestClient restClient;
+        protected readonly Easy.Common.RestClient restClient;
 
         public RestClientRpcService(string friendlyName, IPEndPoint rpcEndpoint, string rpcUser, string rpcPassword, string walletPassword, short timeoutInSeconds = 60)
             : base(friendlyName, rpcEndpoint, rpcUser, rpcPassword, walletPassword, timeoutInSeconds)
@@ -25,7 +20,7 @@ namespace StratisRpc
             this.restClient = CreateRestClient();
         }
 
-        protected virtual RestClient CreateRestClient()
+        protected virtual Easy.Common.RestClient CreateRestClient()
         {
             var defaultHeaders = new Dictionary<string, IEnumerable<string>>{
                 { "Accept", new string[] {"application/json-rpc"} },
@@ -38,14 +33,12 @@ namespace StratisRpc
                 Credentials = new NetworkCredential(this.rpcUser, this.rpcPassword)
             };
 
-            return new RestClient(defaultHeaders, handler, timeout: TimeSpan.FromSeconds(20));
+            return new Easy.Common.RestClient(defaultHeaders, handler, timeout: TimeSpan.FromSeconds(20));
         }
 
-        protected override string CallSingleImpl()
+        protected override string CallSingleImpl(TestRequest request)
         {
-            var requestPayload = new JsonRpcRequest(1, "getrawtransaction", TestData.GetTxId(0), 0);
-
-            var result = this.RpcCall(requestPayload.GetBytes()).Result; ;
+            var result = this.RpcCall(request.GetBytes(0)).Result;
             return result;
         }
 

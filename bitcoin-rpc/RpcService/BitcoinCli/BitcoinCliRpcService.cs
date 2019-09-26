@@ -1,11 +1,12 @@
-﻿using System;
+﻿using StratisRpc.CallRequest;
+using System;
 using System.Diagnostics;
 using System.Net;
 using System.Text;
 
-namespace StratisRpc
+namespace StratisRpc.RpcService.BitcoinCli
 {
-    public class BitcoinCliRpcService : RpcService
+    public class BitcoinCliRpcService : RpcServiceBase
     {
         private readonly string bitcoinCliPath;
         private readonly string baseArguments;
@@ -19,7 +20,7 @@ namespace StratisRpc
             this.bitcoinCliPath = bitcoinCliPath;
         }
 
-        protected override string CallSingleImpl()
+        protected override string CallSingleImpl(TestRequest request)
         {
             string command = $"getrawtransaction {TestData.GetTxId()} 0";
 
