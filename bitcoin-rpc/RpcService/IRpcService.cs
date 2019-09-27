@@ -7,6 +7,8 @@ namespace StratisRpc
 {
     public interface IRpcService
     {
+        string Name { get; }
+
         string GetServiceDescription();
 
         /// <summary>

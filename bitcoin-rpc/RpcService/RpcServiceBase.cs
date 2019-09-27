@@ -20,6 +20,8 @@ namespace StratisRpc.RpcService
         protected readonly string walletPassword;
         protected readonly short timeoutInSeconds;
 
+        public string Name => friendlyName;
+
         public RpcServiceBase(string friendlyName, IPEndPoint rpcEndpoint, string rpcUser, string rpcPassword, string walletPassword, short timeoutInSeconds = 60)
         {
             this.friendlyName = friendlyName;

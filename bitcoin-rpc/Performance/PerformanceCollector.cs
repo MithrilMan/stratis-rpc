@@ -1,51 +1,48 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Text;
+using StratisRpc.OutputFormatter;
 
 namespace StratisRpc.Performance
 {
     public class PerformanceCollector : IDisposable
     {
-        const int ConsoleWidth = 80;
-
-        /// <summary>
-        /// Produces a text.
-        /// </summary>
-        /// <param name="text">The text.</param>
-        public delegate void Writer(string text);
-
         private static SummarySettings summarySettings = new SummarySettings();
         private readonly bool showCallResult;
+        private readonly OutputWriter writer;
         private List<PerformanceEntry> entries;
-        private Writer writer;
+        private TableBuilder summaryTable;
 
         public string Context { get; }
 
 
-        public PerformanceCollector(string context, bool showCallResult, Writer writer = null)
+        public PerformanceCollector(string context, bool showCallResult, OutputWriter writer = null)
         {
             this.Context = context ?? String.Empty;
             this.showCallResult = showCallResult;
-            this.writer = writer ?? Console.Write;
+            this.writer = writer ?? new OutputWriter();
             this.entries = new List<PerformanceEntry>();
 
-            WriteLine(String.Empty);
-            WriteLine(DrawLine('='));
-            WriteLine(Center(context));
-            WriteLine(DrawLine('='));
+            this.writer.WriteLine(String.Empty);
+            this.writer.DrawLine('=');
+            this.writer.WriteLine(context.Center());
+            this.writer.DrawLine('=');
+
+            this.summaryTable = new TableBuilder(this.writer)
+                    .AddColumn(new ColumnDefinition { Label = "Index", Width = 8, Alignment = ColumnAlignment.Left })
+                    .AddColumn(new ColumnDefinition { Label = "Elapsed", Width = 20, Alignment = ColumnAlignment.Right })
+                    .Prepare();
         }
 
 
         protected void AddResult(PerformanceEntry entry)
         {
             this.entries.Add(entry);
-            Write($"! ");
+            this.writer.Write($"! ");
         }
 
         public void AddText(string text)
         {
-            WriteLine(text);
+            this.writer.WriteLine(text);
         }
 
 
@@ -54,14 +51,14 @@ namespace StratisRpc.Performance
         /// </summary>
         /// <param name="action">The action.</param>
         /// <returns></returns>
-        public PerformanceCollector Measure(Func<PerformanceEntry> action)
+        public PerformanceEntry Measure(Func<PerformanceEntry> action)
         {
-            Write($"t-{this.entries.Count + 1}...");
+            this.writer.Write($"t-{this.entries.Count + 1}...");
 
             PerformanceEntry entry = action();
             this.AddResult(entry);
 
-            return this;
+            return entry;
         }
 
         /// <summary>
@@ -69,65 +66,33 @@ namespace StratisRpc.Performance
         /// </summary>
         public void DumpOnConsole()
         {
-            WriteLine();
-            WriteLine();
-            WriteLine(DrawLine('-', summarySettings.Width));
-            WriteLine($"{Align("Index", summarySettings.Index)}{summarySettings.ColumnSeparator}{Align("Elapsed (ms)", summarySettings.Elapsed)}{summarySettings.ColumnSeparator}");
-            WriteLine(DrawLine('-', summarySettings.Width));
+            this.writer.WriteLine();
+            this.writer.WriteLine();
+            this.summaryTable.Start();
 
             for (int index = 0; index < entries.Count; index++)
             {
-                PerformanceEntry entry = entries[index];
-                WriteLine($"{Align($"t-{index}", summarySettings.Index)} | {Align(entry.Elapsed.TotalMilliseconds.ToString(), summarySettings.Elapsed)} |");
+                this.summaryTable.DrawRow($"t-{index}", entries[index].Elapsed.TotalMilliseconds.ToString());
             }
-
-            WriteLine(DrawLine('-', summarySettings.Width));
 
             if (this.showCallResult)
             {
-                WriteLine();
-                WriteLine(DrawLine('*'));
-                WriteLine(Center("RESULTS", '*'));
+                this.writer.WriteLine();
+                this.writer.DrawLine('*');
+                this.writer.WriteLine("RESULTS".Center('*'));
                 for (int index = 0; index < entries.Count; index++)
                 {
                     PerformanceEntry entry = entries[index];
-                    WriteLine($"t-{index}: { entry.Result}");
+                    this.writer.WriteLine($"t-{index}: { entry.Result}");
                 }
-                WriteLine(DrawLine('*'));
-                WriteLine();
+                this.writer.DrawLine('*');
+                this.writer.WriteLine();
             }
 
-            DrawLine('=');
-            DrawLine('=');
-            WriteLine();
+            this.writer.DrawLine('=');
+            this.writer.DrawLine('=');
+            this.writer.WriteLine();
         }
-
-        #region Text Drawing
-        private static string DrawLine(char character = '-', int lenght = ConsoleWidth)
-        {
-            return string.Empty.PadRight(lenght, character);
-        }
-
-        private static string Align(string text, int totalWidth = ConsoleWidth, char paddingCharacter = ' ')
-        {
-            return totalWidth > 0 ? text.PadRight(totalWidth, paddingCharacter) : text.PadLeft(Math.Abs(totalWidth), paddingCharacter);
-        }
-
-        private static string Center(string text, int totalWidth = ConsoleWidth, char paddingCharacter = ' ')
-        {
-            return text.PadLeft((totalWidth + text.Length) / 2, paddingCharacter);
-        }
-
-        private void Write(string text)
-        {
-            this.writer(text);
-        }
-
-        private void WriteLine(string text = null)
-        {
-            this.writer(text + '\n');
-        }
-        #endregion
 
         public void Dispose()
         {
