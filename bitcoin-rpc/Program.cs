@@ -61,8 +61,8 @@ namespace StratisRpc
                 //new BitcoinlibRpcService("SBFN", rpcUrlSbfn, settings.rpcUser, settings.rpcPassword, settings.walletPassword, settings.timeout),
                 //new BitcoinCliRpcService("X Node", settings.bitcoinCliPath, rpcUrlX, settings.rpcUser, settings.rpcPassword, settings.walletPassword, settings.timeout),
                 //new BitcoinCliRpcService("SBFN", settings.bitcoinCliPath, rpcUrlSbfn, settings.rpcUser, settings.rpcPassword, settings.walletPassword, settings.timeout),
-                new RestClientRpcService("X Node", rpcUrlX, settings.rpcUser, settings.rpcPassword, settings.walletPassword, settings.timeout),
-                new RestClientRpcService("SBFN", rpcUrlSbfn, settings.rpcUser, settings.rpcPassword, settings.walletPassword, settings.timeout),
+                //new RestClientRpcService("X Node", rpcUrlX, settings.rpcUser, settings.rpcPassword, settings.walletPassword, settings.timeout),
+                //new RestClientRpcService("SBFN", rpcUrlSbfn, settings.rpcUser, settings.rpcPassword, settings.walletPassword, settings.timeout),
                 new RestClientRpcService("SBFN Local", rpcUrlSbfnLocal, settings.rpcUser, settings.rpcPassword, settings.walletPassword, settings.timeout),
             };
         }
@@ -73,27 +73,39 @@ namespace StratisRpc
             //CallNTimes(TestRequestFactory.CreateRequestFor(MethodToTest.GetTransaction), 20, false);
             //CallNTimes(TestRequestFactory.CreateRequestFor(MethodToTest.GetRawTransaction), 20, false);
 
-            using (var collector = new TestResultCollector("GetRawTransaction"))
+            using (var collector = new TestResultCollector("GetTransaction Batch"))
             {
-                CallBatch(TestRequestFactory.CreateRequestFor(MethodToTest.GetRawTransaction), 1, false, collector);
-                CallBatch(TestRequestFactory.CreateRequestFor(MethodToTest.GetRawTransaction), 10, false, collector);
-                CallBatch(TestRequestFactory.CreateRequestFor(MethodToTest.GetRawTransaction), 15, false, collector);
-                CallBatch(TestRequestFactory.CreateRequestFor(MethodToTest.GetRawTransaction), 30, false, collector);
-                CallBatch(TestRequestFactory.CreateRequestFor(MethodToTest.GetRawTransaction), 60, false, collector);
-                CallBatch(TestRequestFactory.CreateRequestFor(MethodToTest.GetRawTransaction), 120, false, collector);
+                CallBatch(TestRequestFactory.CreateRequestFor(MethodToTest.GetTransaction), 1, true, collector);
+                CallBatch(TestRequestFactory.CreateRequestFor(MethodToTest.GetTransaction), 5, true, collector);
+                CallBatch(TestRequestFactory.CreateRequestFor(MethodToTest.GetTransaction), 10, true, collector);
             }
 
-            //using (var collector = new TestResultCollector("GetBlockCount"))
+            //using (var collector = new TestResultCollector("GetRawTransaction Batch"))
+            //{
+            //    CallBatch(TestRequestFactory.CreateRequestFor(MethodToTest.GetRawTransaction), 1, false, collector);
+            //    CallBatch(TestRequestFactory.CreateRequestFor(MethodToTest.GetRawTransaction), 10, false, collector);
+            //    CallBatch(TestRequestFactory.CreateRequestFor(MethodToTest.GetRawTransaction), 15, false, collector);
+            //    CallBatch(TestRequestFactory.CreateRequestFor(MethodToTest.GetRawTransaction), 30, false, collector);
+            //    CallBatch(TestRequestFactory.CreateRequestFor(MethodToTest.GetRawTransaction), 60, false, collector);
+            //    CallBatch(TestRequestFactory.CreateRequestFor(MethodToTest.GetRawTransaction), 120, false, collector);
+            //}
+
+            //using (var collector = new TestResultCollector("GetBlockCount Batch"))
             //{
             //    CallBatch(TestRequestFactory.CreateRequestFor(MethodToTest.GetBlockCount), 120, false, collector);
             //    CallBatch(TestRequestFactory.CreateRequestFor(MethodToTest.GetBlockCount), 240, false, collector);
             //    CallBatch(TestRequestFactory.CreateRequestFor(MethodToTest.GetBlockCount), 480, false, collector);
+            //    CallBatch(TestRequestFactory.CreateRequestFor(MethodToTest.GetBlockCount), 960, false, collector);
             //}
+
+            //CallNTimes(TestRequestFactory.CreateRequestFor(MethodToTest.GetBlockCount), 20, false);
+            //CallNTimes(TestRequestFactory.CreateRequestFor(MethodToTest.GetTransaction), 20, false);
+            //CallNTimes(TestRequestFactory.CreateRequestFor(MethodToTest.GetRawTransaction), 20, false);
         }
 
         private static void CallNTimes(TestRequest request, int count, bool showPartialResult, TestResultCollector testResultCollector = null)
         {
-            var testResults = new List<TestResult>();
+            List<TestResult>[] testResults = Enumerable.Range(0, count).Select((i) => new List<TestResult>()).ToArray();
 
             foreach (var service in rpcServices)
             {
@@ -101,23 +113,29 @@ namespace StratisRpc
                 {
                     performanceCollector.AddText($"Call {request.MethodToTest} sequentially {count} times\n");
 
-                    for (int _ = 0; _ < count; _++)
+                    for (int i = 0; i < count; i++)
                     {
                         PerformanceEntry performance = performanceCollector.Measure(() => service.CallSingle(request));
-                        testResults.Add(new TestResult(service, count, performance));
+                        testResults[i].Add(new TestResult(service, count, performance));
                     }
                 }
             }
 
             if (testResultCollector != null)
             {
-                testResultCollector.Collect(count.ToString(), testResults);
+                for (int i = 0; i < testResults.Length; i++)
+                {
+                    testResultCollector.Collect($"t-{i}", testResults[i]);
+                }
             }
             else
             {
                 using (testResultCollector = new TestResultCollector(request.MethodToTest.ToString()))
                 {
-                    testResultCollector.Collect(count.ToString(), testResults);
+                    for (int i = 0; i < testResults.Length; i++)
+                    {
+                        testResultCollector.Collect($"t-{i}", testResults[i]);
+                    }
                 }
             }
         }
