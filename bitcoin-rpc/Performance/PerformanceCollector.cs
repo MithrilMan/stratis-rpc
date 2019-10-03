@@ -6,30 +6,33 @@ namespace StratisRpc.Performance
 {
     public class PerformanceCollector : IDisposable
     {
-        private readonly bool showCallResult;
         private readonly OutputWriter writer;
+        private readonly PerformanceCollectorOptions options;
         private List<PerformanceEntry> entries;
         private TableBuilder summaryTable;
 
         public string Context { get; }
 
 
-        public PerformanceCollector(string context, bool showCallResult, OutputWriter writer = null)
+        public PerformanceCollector(string context, PerformanceCollectorOptions options)
         {
             this.Context = context ?? String.Empty;
-            this.showCallResult = showCallResult;
-            this.writer = writer ?? new OutputWriter();
+            this.options = options ?? new PerformanceCollectorOptions { Enabled = true, ShowResults = false };
+            this.writer = options.Writer ?? new OutputWriter();
             this.entries = new List<PerformanceEntry>();
 
-            this.writer.WriteLine(String.Empty);
-            this.writer.DrawLine('=');
-            this.writer.WriteLine(context.Center());
-            this.writer.DrawLine('=');
-
             this.summaryTable = new TableBuilder(this.writer)
-                    .AddColumn(new ColumnDefinition { Label = "Index", Width = 8, Alignment = ColumnAlignment.Left })
-                    .AddColumn(new ColumnDefinition { Label = "Elapsed", Width = 20, Alignment = ColumnAlignment.Right })
-                    .Prepare();
+                .AddColumn(new ColumnDefinition { Label = "Index", Width = 8, Alignment = ColumnAlignment.Left })
+                .AddColumn(new ColumnDefinition { Label = "Elapsed", Width = 20, Alignment = ColumnAlignment.Right })
+                .Prepare();
+
+            if (options.Enabled)
+            {
+                this.writer.WriteLine(String.Empty);
+                this.writer.DrawLine('=');
+                this.writer.WriteLine(context.Center());
+                this.writer.DrawLine('=');
+            }
         }
 
 
@@ -37,12 +40,14 @@ namespace StratisRpc.Performance
         {
             this.entries.Add(entry);
 
-            this.summaryTable.DrawRow($"t-{entries.Count}", entries[entries.Count - 1].Elapsed.TotalMilliseconds.ToString());
+            if (options.Enabled)
+                this.summaryTable.DrawRow($"t-{entries.Count}", entries[entries.Count - 1].Elapsed.TotalMilliseconds.ToString());
         }
 
         public void AddText(string text)
         {
-            this.writer.WriteLine(text);
+            if (options.Enabled)
+                this.writer.WriteLine(text);
         }
 
 
@@ -64,6 +69,9 @@ namespace StratisRpc.Performance
         /// </summary>
         private void DumpOnConsole()
         {
+            if (!options.Enabled)
+                return;
+
             this.writer.WriteLine();
             this.writer.WriteLine();
             this.summaryTable.Start();
@@ -73,7 +81,7 @@ namespace StratisRpc.Performance
                 this.summaryTable.DrawRow($"t-{index + 1}", entries[index].Elapsed.TotalMilliseconds.ToString());
             }
 
-            if (this.showCallResult)
+            if (this.options.ShowResults)
             {
                 this.writer.WriteLine();
                 this.writer.DrawLine('*');
@@ -94,7 +102,8 @@ namespace StratisRpc.Performance
 
         public void Dispose()
         {
-            this.DumpOnConsole();
+            if (this.options.Enabled)
+                this.DumpOnConsole();
         }
     }
 }

@@ -3,10 +3,7 @@ using System.Net;
 using System.Linq;
 using StratisRpc.CallRequest;
 using StratisRpc.RpcService.RestClient;
-using StratisRpc.RpcService.Bitcoinlib;
-using StratisRpc.RpcService.BitcoinCli;
 using StratisRpc.Performance;
-using System.Collections.Generic;
 using StratisRpc.Tests;
 
 namespace StratisRpc
@@ -30,7 +27,7 @@ namespace StratisRpc
         private static void Warmup()
         {
             Console.WriteLine("WARMUP");
-            TestExecutor.CallBatch(TestRequestFactory.CreateRequestFor(MethodToTest.GetBlockCount), 1, false);
+            TestExecutor.CallBatch(TestRequestFactory.CreateRequestFor(MethodToTest.GetBlockCount), 1, PerformanceCollectorOptions.Disabled);
             Console.WriteLine("END OF WARMUP, don't consider results above.");
             Console.Clear();
         }
@@ -72,10 +69,8 @@ namespace StratisRpc
 
         private static void DoTests()
         {
+            PerformanceCollectorOptions options = PerformanceCollectorOptions.Disabled;
             //Tests.GetBalance.Execute(10);
-            new Tests.ValidateAddress().Execute(20);
-            new Tests.ValidateAddress().Batch();
-
             //Tests.GetTranasction.Batch();
 
             //Tests.GetRawTransaction.Batch();
@@ -83,6 +78,18 @@ namespace StratisRpc
             //Tests.GetBlockCount.Execute(20);
             //Tests.GetTransaction.Execute(20);
             //Tests.GetRawTransaction.Execute(20);
+
+            new Tests.ValidateAddress()
+                .SetOptions(options)
+                .Execute(20)
+                .Batch()
+                .Wait();
+
+            new Tests.GetBlockHash()
+                .SetOptions(options)
+                .Execute(20)
+                .Batch()
+                .Wait();
         }
     }
 }

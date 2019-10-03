@@ -21,6 +21,7 @@ namespace StratisRpc.CallRequest
                 case MethodToTest.ValidateAddress:
                     return new ValidateAddress(TestData.GetAddress());
                 case MethodToTest.GetBlockHash:
+                    return new GetBlockHash(1000);
                 case MethodToTest.GetBlock:
                 case MethodToTest.GetBalance:
                     return new GetBalance(null, null, null);

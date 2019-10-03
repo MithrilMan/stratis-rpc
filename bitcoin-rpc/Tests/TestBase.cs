@@ -1,10 +1,17 @@
 ﻿using StratisRpc.CallRequest;
+using StratisRpc.Performance;
+using System;
 using System.Collections.Generic;
 
 namespace StratisRpc.Tests
 {
     public abstract class TestBase<T> where T : TestBase<T>
     {
+        /// <summary>
+        /// The performance collector options to use during RPC calls.
+        /// </summary>
+        protected PerformanceCollectorOptions options;
+
         public MethodToTest MethodToTest { get; }
 
         public TestRequest DefaultRequest { get; set; }
@@ -14,16 +21,17 @@ namespace StratisRpc.Tests
             this.MethodToTest = methodToTest;
 
             this.DefaultRequest = TestRequestFactory.CreateRequestFor(methodToTest);
+            this.options = PerformanceCollectorOptions.Default;
         }
 
-        protected void CallNTimes(TestRequest request, int count, bool showPartialResult, TestResultCollector testResultCollector = null)
+        protected void CallNTimes(TestRequest request, int count, PerformanceCollectorOptions options, TestResultCollector testResultCollector = null)
         {
-            TestExecutor.CallNTimes(request, count, showPartialResult, testResultCollector);
+            TestExecutor.CallNTimes(request, count, options, testResultCollector);
         }
 
-        protected List<TestResult> CallBatch(TestRequest request, int batchSize, bool showPartialResult, TestResultCollector testResultCollector = null)
+        protected List<TestResult> CallBatch(TestRequest request, int batchSize, PerformanceCollectorOptions options, TestResultCollector testResultCollector = null)
         {
-            return TestExecutor.CallBatch(request, batchSize, showPartialResult, testResultCollector);
+            return TestExecutor.CallBatch(request, batchSize, options, testResultCollector);
         }
 
         public virtual T Batch(string title = null, bool showResult = false, TestRequest request = null, params int[] batchSizes)
@@ -37,7 +45,7 @@ namespace StratisRpc.Tests
             using (var collector = new TestResultCollector(title))
             {
                 for (int i = 0; i < batchSizes.Length; i++)
-                    this.CallBatch(request, batchSizes[i], showResult, collector);
+                    this.CallBatch(request, batchSizes[i], options, collector);
             }
 
             return (T)this;
@@ -45,8 +53,56 @@ namespace StratisRpc.Tests
 
         public virtual T Execute(int count = 20, TestRequest request = null)
         {
-            this.CallNTimes(request ?? this.DefaultRequest, count, false);
+            this.CallNTimes(request ?? this.DefaultRequest, count, options);
             return (T)this;
+        }
+
+        public T SetOptions(PerformanceCollectorOptions options)
+        {
+            this.options = options;
+            return (T)this;
+        }
+
+
+        /// <summary>
+        /// Waits a console input before proceeding.
+        /// </summary>
+        public void Wait()
+        {
+            Console.WriteLine("Press any key to continue...");
+            Console.ReadKey();
+        }
+
+
+        protected IEnumerable<int> Range(int from = 0, int to = 100, int step = 20, bool includeOne = true)
+        {
+            if (includeOne)
+                yield return 1;
+
+            for (int i = from; i <= to; i += step)
+            {
+                if (i > 1)
+                    yield return i;
+            }
+        }
+
+        protected IEnumerable<int> RangeExponential(int from = 1, int multiplier = 2, int items = 5, bool includeOne = true)
+        {
+            if (includeOne)
+                yield return 1;
+
+            int returnedValue = from;
+            if (returnedValue > 1)
+            {
+                items--;
+                yield return from;
+            }
+
+            for (int i = 1; i < items; i++)
+            {
+                returnedValue = returnedValue * multiplier;
+                yield return returnedValue;
+            }
         }
     }
 }

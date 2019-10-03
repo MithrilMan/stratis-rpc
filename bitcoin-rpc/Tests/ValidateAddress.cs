@@ -9,7 +9,7 @@ namespace StratisRpc.Tests
 
         public override ValidateAddress Batch(string title = null, bool showResult = false, TestRequest request = null, params int[] batchSizes)
         {
-            return base.Batch(title, showResult, request, Enumerable.Range(1, 1000).Where(n => n % 50 == 0).ToArray());
+            return base.Batch(title, showResult, request, Range(1, 1000, 50).ToArray());
         }
     }
 }

@@ -1,6 +1,4 @@
-﻿using StratisRpc.CallRequest;
-
-namespace StratisRpc.Tests
+﻿namespace StratisRpc.Tests
 {
     public class GetBalance : TestBase<GetBalance>
     {
