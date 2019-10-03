@@ -22,6 +22,7 @@ namespace StratisRpc.CallRequest
                 case MethodToTest.GetBlockHash:
                 case MethodToTest.GetBlock:
                 case MethodToTest.GetBalance:
+                    return new GetBalance(null, null, null);
                 case MethodToTest.ListUnspent:
                 case MethodToTest.ListAddressGroupings:
                 case MethodToTest.SendMany:
