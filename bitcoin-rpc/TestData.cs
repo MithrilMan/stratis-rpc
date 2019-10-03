@@ -15,9 +15,22 @@
             "dcaaf40c6d5b44f34e566433783fe5299532a308e5adfcfb3551505d761add4e"
         };
 
+        public static string[] addresses = {
+            "STnNSuT5z5RuG11njoKYM1SpLkP4hymCVv",
+            "SY4uC2bMUPTdABspF5VJBHp2EDFW8J4ya2",
+            "Sayn12muspJtmZxQiv97bJESfbAW5cTtwZ",
+            "SgYwKoLLwwhiwYfREqHFsbC11i3BJz2g36",
+            "SYoNtPQwa2rtLUnN7cL4bvnATgHYeBXUay"
+        };
+
         public static string GetTxId(int index = 0)
         {
             return txIds[index % txIds.Length];
+        }
+
+        public static string GetAddress(int index = 0)
+        {
+            return addresses[index % addresses.Length];
         }
     }
 }

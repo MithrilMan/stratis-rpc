@@ -72,7 +72,9 @@ namespace StratisRpc
 
         private static void DoTests()
         {
-            Tests.GetBalance.Execute(10);
+            //Tests.GetBalance.Execute(10);
+            new Tests.ValidateAddress().Execute(20);
+            new Tests.ValidateAddress().Batch();
 
             //Tests.GetTranasction.Batch();
 

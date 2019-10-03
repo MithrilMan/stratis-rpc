@@ -19,6 +19,7 @@ namespace StratisRpc.CallRequest
                 case MethodToTest.DecodeRawTransaction:
                     return new DecodeRawTransaction(TestData.GetTxId(), null);
                 case MethodToTest.ValidateAddress:
+                    return new ValidateAddress(TestData.GetAddress());
                 case MethodToTest.GetBlockHash:
                 case MethodToTest.GetBlock:
                 case MethodToTest.GetBalance:

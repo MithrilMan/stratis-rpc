@@ -6,7 +6,6 @@ namespace StratisRpc.Performance
 {
     public class PerformanceCollector : IDisposable
     {
-        private static SummarySettings summarySettings = new SummarySettings();
         private readonly bool showCallResult;
         private readonly OutputWriter writer;
         private List<PerformanceEntry> entries;
@@ -37,7 +36,8 @@ namespace StratisRpc.Performance
         protected void AddResult(PerformanceEntry entry)
         {
             this.entries.Add(entry);
-            this.writer.Write($"! ");
+
+            this.summaryTable.DrawRow($"t-{entries.Count}", entries[entries.Count - 1].Elapsed.TotalMilliseconds.ToString());
         }
 
         public void AddText(string text)
@@ -53,8 +53,6 @@ namespace StratisRpc.Performance
         /// <returns></returns>
         public PerformanceEntry Measure(Func<PerformanceEntry> action)
         {
-            this.writer.Write($"t-{this.entries.Count + 1}...");
-
             PerformanceEntry entry = action();
             this.AddResult(entry);
 
@@ -64,7 +62,7 @@ namespace StratisRpc.Performance
         /// <summary>
         /// Dumps the summary of the performance entries on console.
         /// </summary>
-        public void DumpOnConsole()
+        private void DumpOnConsole()
         {
             this.writer.WriteLine();
             this.writer.WriteLine();
@@ -72,7 +70,7 @@ namespace StratisRpc.Performance
 
             for (int index = 0; index < entries.Count; index++)
             {
-                this.summaryTable.DrawRow($"t-{index}", entries[index].Elapsed.TotalMilliseconds.ToString());
+                this.summaryTable.DrawRow($"t-{index + 1}", entries[index].Elapsed.TotalMilliseconds.ToString());
             }
 
             if (this.showCallResult)
@@ -97,20 +95,6 @@ namespace StratisRpc.Performance
         public void Dispose()
         {
             this.DumpOnConsole();
-        }
-
-        private sealed class SummarySettings
-        {
-            public int Index = 8;
-            public int Elapsed = -20;
-            public string ColumnSeparator = " | ";
-            public readonly int Width;
-
-            public SummarySettings()
-            {
-                this.Width = Math.Abs(this.Index) + ColumnSeparator.Length + Math.Abs(this.Elapsed) + ColumnSeparator.Length;
-            }
-
         }
     }
 }

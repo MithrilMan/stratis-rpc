@@ -2,22 +2,13 @@
 
 namespace StratisRpc.Tests
 {
-    public static class GetTransaction
+    public class GetTransaction : TestBase<GetTransaction>
     {
-        public static void Batch()
-        {
-            var request = TestRequestFactory.CreateRequestFor(MethodToTest.GetTransaction);
-            using (var collector = new TestResultCollector("GetTransaction Batch"))
-            {
-                TestExecutor.CallBatch(request, 1, true, collector);
-                TestExecutor.CallBatch(request, 5, true, collector);
-                TestExecutor.CallBatch(request, 10, true, collector);
-            }
-        }
+        public GetTransaction() : base(MethodToTest.GetTransaction) { }
 
-        public static void Execute(int count)
+        public override GetTransaction Batch(string title = null, bool showResult = false, TestRequest request = null, params int[] batchSizes)
         {
-            TestExecutor.CallNTimes(TestRequestFactory.CreateRequestFor(MethodToTest.GetTransaction), count, false);
+            return base.Batch(title, showResult, request, 1, 5, 10);
         }
     }
 }

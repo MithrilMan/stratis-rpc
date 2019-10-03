@@ -2,24 +2,13 @@
 
 namespace StratisRpc.Tests
 {
-    public static class GetBlockCount
+    public class GetBlockCount : TestBase<GetBlockCount>
     {
-        public static void Execute(int count)
-        {
-            TestExecutor.CallNTimes(TestRequestFactory.CreateRequestFor(MethodToTest.GetBlockCount), count, false);
-        }
+        public GetBlockCount() : base(MethodToTest.GetBlockCount) { }
 
-        public static void Batch()
+        public override GetBlockCount Batch(string title = null, bool showResult = false, TestRequest request = null, params int[] batchSizes)
         {
-            var request = TestRequestFactory.CreateRequestFor(MethodToTest.GetBlockCount);
-
-            using (var collector = new TestResultCollector("GetBlockCount Batch"))
-            {
-                TestExecutor.CallBatch(request, 120, false, collector);
-                TestExecutor.CallBatch(request, 240, false, collector);
-                TestExecutor.CallBatch(request, 480, false, collector);
-                TestExecutor.CallBatch(request, 960, false, collector);
-            }
+            return base.Batch(title, showResult, request, 120, 240, 480, 960);
         }
     }
 }
