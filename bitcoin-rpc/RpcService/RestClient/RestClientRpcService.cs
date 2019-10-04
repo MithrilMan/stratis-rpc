@@ -33,7 +33,7 @@ namespace StratisRpc.RpcService.RestClient
                 Credentials = new NetworkCredential(this.rpcUser, this.rpcPassword)
             };
 
-            return new Easy.Common.RestClient(defaultHeaders, handler, timeout: TimeSpan.FromSeconds(20));
+            return new Easy.Common.RestClient(defaultHeaders, handler, timeout: TimeSpan.FromSeconds(this.timeoutInSeconds));
         }
 
         protected override string CallSingleImpl(TestRequest request)

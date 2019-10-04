@@ -17,7 +17,7 @@ namespace StratisRpc.Performance
         public PerformanceCollector(string context, PerformanceCollectorOptions options)
         {
             this.Context = context ?? String.Empty;
-            this.options = options ?? new PerformanceCollectorOptions { Enabled = true, ShowResults = false };
+            this.options = options ?? new PerformanceCollectorOptions { Enabled = true, ShowResponses = false };
             this.writer = options.Writer ?? new OutputWriter();
             this.entries = new List<PerformanceEntry>();
 
@@ -32,6 +32,8 @@ namespace StratisRpc.Performance
                 this.writer.DrawLine('=');
                 this.writer.WriteLine(context.Center());
                 this.writer.DrawLine('=');
+                this.writer.WriteLine();
+                this.writer.WriteLine();
             }
         }
 
@@ -58,6 +60,10 @@ namespace StratisRpc.Performance
         /// <returns></returns>
         public PerformanceEntry Measure(Func<PerformanceEntry> action)
         {
+            //start drawing the table header if it's the first measure
+            if (this.entries.Count == 0 && options.Enabled)
+                this.summaryTable.Start();
+
             PerformanceEntry entry = action();
             this.AddResult(entry);
 
@@ -67,25 +73,15 @@ namespace StratisRpc.Performance
         /// <summary>
         /// Dumps the summary of the performance entries on console.
         /// </summary>
-        private void DumpOnConsole()
+        private void DumpResultsAndEnd()
         {
             if (!options.Enabled)
                 return;
 
-            this.writer.WriteLine();
-            this.writer.WriteLine();
-            this.summaryTable.Start();
-
-            for (int index = 0; index < entries.Count; index++)
-            {
-                this.summaryTable.DrawRow($"t-{index + 1}", entries[index].Elapsed.TotalMilliseconds.ToString());
-            }
-
-            if (this.options.ShowResults)
+            if (this.options.ShowResponses)
             {
                 this.writer.WriteLine();
-                this.writer.DrawLine('*');
-                this.writer.WriteLine("RESULTS".Center('*'));
+                this.writer.WriteLine("RESPONSES".Center(80, '*'));
                 for (int index = 0; index < entries.Count; index++)
                 {
                     PerformanceEntry entry = entries[index];
@@ -103,7 +99,7 @@ namespace StratisRpc.Performance
         public void Dispose()
         {
             if (this.options.Enabled)
-                this.DumpOnConsole();
+                this.DumpResultsAndEnd();
         }
     }
 }

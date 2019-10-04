@@ -23,6 +23,10 @@
             "SYoNtPQwa2rtLUnN7cL4bvnATgHYeBXUay"
         };
 
+        public static int BlockHeight = 1000;
+
+        public static string BlockHash = "f55dd522f80e590c28f444c959b98d7957c9be6554c15a7b9fd73b81c6c6d894";
+
         public static string GetTxId(int index = 0)
         {
             return txIds[index % txIds.Length];

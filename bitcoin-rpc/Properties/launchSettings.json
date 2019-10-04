@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "StratisRpc": {
+      "commandName": "Project",
+      "commandLineArgs": "--save"
+    }
+  }
+}

@@ -21,12 +21,15 @@ namespace StratisRpc.CallRequest
                 case MethodToTest.ValidateAddress:
                     return new ValidateAddress(TestData.GetAddress());
                 case MethodToTest.GetBlockHash:
-                    return new GetBlockHash(1000);
+                    return new GetBlockHash(TestData.BlockHeight);
                 case MethodToTest.GetBlock:
+                    return new GetBlock(TestData.BlockHash, null);
                 case MethodToTest.GetBalance:
                     return new GetBalance(null, null, null);
                 case MethodToTest.ListUnspent:
+                    return new ListUnspent(null, null, null, null, null);
                 case MethodToTest.ListAddressGroupings:
+                    return new ListAddressGroupings();
                 case MethodToTest.SendMany:
                 default:
                     throw new Exception("Unknown method to test.");

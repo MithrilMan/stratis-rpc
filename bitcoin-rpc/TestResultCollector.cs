@@ -8,32 +8,34 @@ namespace StratisRpc
     public class TestResultCollector : IDisposable
     {
         private readonly string context;
-        private readonly OutputWriter writer;
-        private readonly List<(string TestCase, List<TestResult> Results)> results;
+
+        public OutputWriter Writer { get; }
+
+        public List<(string TestCase, List<TestResult> Results)> Results { get; }
 
         public TestResultCollector(string context, OutputWriter writer = null)
         {
             this.context = context;
-            this.writer = writer ?? new OutputWriter();
+            this.Writer = writer ?? new OutputWriter();
 
-            this.results = new List<(string TestCase, List<TestResult> Results)>();
+            this.Results = new List<(string TestCase, List<TestResult> Results)>();
         }
 
         public void Collect(string testCase, List<TestResult> results)
         {
-            this.results.Add((testCase, results));
+            this.Results.Add((testCase, results));
         }
 
         public void Dispose()
         {
-            this.writer.WriteLine();
-            this.writer.DrawLine('^');
-            this.writer.WriteLine($"TEST RESULTS: {context}");
+            this.Writer.WriteLine();
+            this.Writer.DrawLine('^');
+            this.Writer.WriteLine($"TEST RESULTS: {context}");
 
-            if (results.Count > 0)
+            if (Results.Count > 0)
             {
-                var firstResult = results.First().Results;
-                TableBuilder table = new TableBuilder(writer)
+                var firstResult = Results.First().Results;
+                TableBuilder table = new TableBuilder(Writer)
                     .AddColumn(new ColumnDefinition { Label = "Test Case", Width = 10, Alignment = ColumnAlignment.Left })
                     .AddColumns(firstResult.Select(item => new ColumnDefinition
                     {
@@ -43,7 +45,7 @@ namespace StratisRpc
                     }).ToArray())
                     .Start();
 
-                foreach (var result in results)
+                foreach (var result in Results)
                 {
                     List<string> values = new List<string> { result.TestCase };
                     values.AddRange(result.Results.Select(r => r.PerformanceEntry.Elapsed.TotalMilliseconds.ToString()));
@@ -51,7 +53,7 @@ namespace StratisRpc
                 }
             }
 
-            this.writer.DrawLine('^');
+            this.Writer.DrawLine('^');
         }
     }
 }

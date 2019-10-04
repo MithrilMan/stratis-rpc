@@ -2,6 +2,7 @@
 using StratisRpc.Performance;
 using System;
 using System.Collections.Generic;
+using System.Threading;
 
 namespace StratisRpc.Tests
 {
@@ -11,6 +12,11 @@ namespace StratisRpc.Tests
         /// The performance collector options to use during RPC calls.
         /// </summary>
         protected PerformanceCollectorOptions options;
+
+        /// <summary>
+        /// If false, prevent any call to RPC
+        /// </summary>
+        protected bool Enabled { get; private set; }
 
         public MethodToTest MethodToTest { get; }
 
@@ -22,6 +28,7 @@ namespace StratisRpc.Tests
 
             this.DefaultRequest = TestRequestFactory.CreateRequestFor(methodToTest);
             this.options = PerformanceCollectorOptions.Default;
+            this.Enabled = true;
         }
 
         protected void CallNTimes(TestRequest request, int count, PerformanceCollectorOptions options, TestResultCollector testResultCollector = null)
@@ -36,16 +43,19 @@ namespace StratisRpc.Tests
 
         public virtual T Batch(string title = null, bool showResult = false, TestRequest request = null, params int[] batchSizes)
         {
-            if (batchSizes.Length == 0)
-                batchSizes = new int[] { 1, 5, 10 };
-
-            title = title ?? $"{this.DefaultRequest.ToString()} Batch";
-            request = request ?? this.DefaultRequest;
-
-            using (var collector = new TestResultCollector(title))
+            if (Enabled)
             {
-                for (int i = 0; i < batchSizes.Length; i++)
-                    this.CallBatch(request, batchSizes[i], options, collector);
+                if (batchSizes.Length == 0)
+                    batchSizes = new int[] { 1, 5, 10 };
+
+                title = title ?? $"{this.DefaultRequest.ToString()} Batch";
+                request = request ?? this.DefaultRequest;
+
+                using (var collector = new TestResultCollector(title))
+                {
+                    for (int i = 0; i < batchSizes.Length; i++)
+                        this.CallBatch(request, batchSizes[i], options, collector);
+                }
             }
 
             return (T)this;
@@ -53,7 +63,11 @@ namespace StratisRpc.Tests
 
         public virtual T Execute(int count = 20, TestRequest request = null)
         {
-            this.CallNTimes(request ?? this.DefaultRequest, count, options);
+            if (Enabled)
+            {
+                this.CallNTimes(request ?? this.DefaultRequest, count, options);
+            }
+
             return (T)this;
         }
 
@@ -67,10 +81,29 @@ namespace StratisRpc.Tests
         /// <summary>
         /// Waits a console input before proceeding.
         /// </summary>
-        public void Wait()
+        public T Wait()
         {
-            Console.WriteLine("Press any key to continue...");
-            Console.ReadKey();
+            if (Enabled)
+            {
+                Console.WriteLine("Press any key to continue...");
+                while (!Console.KeyAvailable)
+                {
+                    Thread.Sleep(0);
+                }
+                Console.ReadKey(true);
+            }
+
+            return (T)this;
+        }
+
+        /// <summary>
+        /// Useful to prevent this test to run any call
+        /// </summary>
+        public T Disable()
+        {
+            this.Enabled = false;
+
+            return (T)this;
         }
 
 

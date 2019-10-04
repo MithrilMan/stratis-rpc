@@ -5,23 +5,35 @@ using StratisRpc.CallRequest;
 using StratisRpc.RpcService.RestClient;
 using StratisRpc.Performance;
 using StratisRpc.Tests;
+using System.IO;
 
 namespace StratisRpc
 {
     class Program
     {
-
-        private static IRpcService[] rpcServices;
-
         static void Main(string[] args)
         {
             InitializeConnectors();
 
             Warmup();
 
-            DoTests();
+            if (args.Contains("--save"))
+            {
+                string fileName = Path.GetFullPath("./results.txt");
 
-            Console.WriteLine();
+                Console.WriteLine($"Results will be saved on {fileName}");
+                using (StreamWriter writer = new StreamWriter(fileName) { AutoFlush = true })
+                {
+                    using (new ConsoleMirroring(writer))
+                    {
+                        DoTests();
+                    }
+                }
+            }
+            else
+            {
+                DoTests();
+            }
         }
 
         private static void Warmup()
@@ -46,7 +58,7 @@ namespace StratisRpc
                 rpcUser = "stratis",
                 rpcPassword = "node",
                 walletPassword = "node",
-                timeout = (short)360,
+                timeout = (short)360, //seconds
                 bitcoinCliPath = @"E:\Sviluppo\InternalTestnet\Util\bitcoin-cli.exe"
             };
 
@@ -69,27 +81,24 @@ namespace StratisRpc
 
         private static void DoTests()
         {
-            PerformanceCollectorOptions options = PerformanceCollectorOptions.Disabled;
-            //Tests.GetBalance.Execute(10);
-            //Tests.GetTranasction.Batch();
+            PerformanceCollectorOptions summaryOnly = PerformanceCollectorOptions.Disabled;
+            PerformanceCollectorOptions showResponses = new PerformanceCollectorOptions { ShowResponses = true };
+            PerformanceCollectorOptions hideResponses = new PerformanceCollectorOptions { ShowResponses = false };
 
-            //Tests.GetRawTransaction.Batch();
+            Console.WriteLine($"Current Time (UTC/Local): {DateTime.UtcNow}/{DateTime.Now}");
 
-            //Tests.GetBlockCount.Execute(20);
-            //Tests.GetTransaction.Execute(20);
-            //Tests.GetRawTransaction.Execute(20);
+            new Tests.Scenarios()
+               //.Disable()
+               .SetOptions(hideResponses)
+               .CheckAllMethods();
 
-            new Tests.ValidateAddress()
-                .SetOptions(options)
-                .Execute(20)
-                .Batch()
-                .Wait();
 
-            new Tests.GetBlockHash()
-                .SetOptions(options)
-                .Execute(20)
-                .Batch()
-                .Wait();
+            new Tests.ListAddressGroupings()
+               .Disable()
+               .SetOptions(hideResponses)
+               .Execute(1)
+               //.Batch()
+               .Wait();
         }
     }
 }

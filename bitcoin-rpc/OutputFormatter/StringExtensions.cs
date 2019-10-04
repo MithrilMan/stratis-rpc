@@ -19,9 +19,12 @@ namespace StratisRpc.OutputFormatter
             return text.PadLeft(Math.Abs(totalWidth), paddingCharacter);
         }
 
-        public static string Center(this string text, int totalWidth = OutputWriter.ConsoleWidth, char paddingCharacter = ' ')
+        // Define other methods and classes here
+        public static string Center(this string text, int totalWidth = 80, char paddingCharacter = ' ')
         {
-            return text.PadLeft((totalWidth + text.Length) / 2, paddingCharacter);
+            return text
+                .PadLeft((totalWidth + text.Length) / 2, paddingCharacter)
+                .PadRight(totalWidth, paddingCharacter);
         }
     }
 }
