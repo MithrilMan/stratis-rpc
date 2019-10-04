@@ -145,7 +145,7 @@ namespace StratisRpc
                 //new BitcoinCliRpcService("X Node", settings.bitcoinCliPath, rpcUrlX, settings.rpcUser, settings.rpcPassword, settings.walletPassword, settings.timeout),
                 //new BitcoinCliRpcService("SBFN", settings.bitcoinCliPath, rpcUrlSbfn, settings.rpcUser, settings.rpcPassword, settings.walletPassword, settings.timeout),
 
-                new RestClientRpcService("X Node", rpcUrlX, settings.rpcUser, settings.rpcPassword, settings.walletPassword, settings.timeout),
+              //  new RestClientRpcService("X Node", rpcUrlX, settings.rpcUser, settings.rpcPassword, settings.walletPassword, settings.timeout),
             //new RestClientRpcService("SBFN", rpcUrlSbfn, settings.rpcUser, settings.rpcPassword, settings.walletPassword, settings.timeout),
               new RestClientRpcService("SBFN Local", rpcUrlSbfnLocal, settings.rpcUser, settings.rpcPassword, settings.walletPassword, settings.timeout)
             );
@@ -161,12 +161,14 @@ namespace StratisRpc
                .CheckAllMethods();
 
 
-            new Tests.DecodeRawTransaction()
+            new Tests.GetTransaction()
                //.Disable()
-               //.SetOptions(verbosityLevels[VerbosityLevel.ShowResponses])
                .SetOptions(verbosityLevel)
-               .Execute(10)
-               .Batch()
+               //.SetOptions(verbosityLevels[VerbosityLevel.ShowResponses])
+               //.Execute(10)
+               //.Batch()
+               .GetSpecificTransaction("8fd79542c5c3291fff653050b7ee36692d29290d62e1069089a9cd95a1c0be1b", 1)
+               .GetSpecificTransaction("9fd79542c5c3291fff653050b7ee36692d29290d62e1069089a9cd95a1c0be1b", 1)
                .Wait();
         }
     }

@@ -1,47 +1,20 @@
-Current Time (UTC  ---  Local): 10/04/2019 16:20:31  ---  10/04/2019 18:20:31
+Current Time (UTC  ---  Local): 10/04/2019 17:30:29  ---  10/04/2019 19:30:29
+Tx-Id: 8fd79542c5c3291fff653050b7ee36692d29290d62e1069089a9cd95a1c0be1b
 
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-TEST RESULTS: DecodeRawTransaction repeated calls (10).
------------------------------------------------
-|Test Case  |     X Node      |   SBFN Local   
------------------------------------------------
-|t-1        |      0.0025 sec |      0.0036 sec
-|t-2        |      0.0025 sec |      0.0023 sec
-|t-3        |      0.0020 sec |      0.0018 sec
-|t-4        |      0.0021 sec |      0.0018 sec
-|t-5        |      0.0021 sec |      0.0022 sec
-|t-6        |      0.0022 sec |      0.0023 sec
-|t-7        |      0.0531 sec |      0.0018 sec
-|t-8        |      0.0018 sec |      0.0018 sec
-|t-9        |      0.0019 sec |      0.0018 sec
-|t-10       |      0.0023 sec |      0.0021 sec
+TEST RESULTS: GetTransaction: Get specific tranasction 8fd79542c5c3291fff653050b7ee36692d29290d62e1069089a9cd95a1c0be1b 1 times.
+-----------------------------
+|Test Case  |   SBFN Local   
+-----------------------------
+|t-1        |      5.2873 sec
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error: SBFN Local - Invalid or non-wallet transaction id.
 
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-TEST RESULTS: DecodeRawTransaction hexstring:69130e612c49b3da86859c10387c309e6949038e88c1e6cb4ab149a458e3fadc iswitness: Batch
------------------------------------------------
-|Test Case  |     X Node      |   SBFN Local   
------------------------------------------------
-|1          |      0.0021 sec |      0.0032 sec
-|50         |      0.0039 sec |      0.0494 sec
-|100        |      0.0128 sec |      0.1027 sec
-|150        |      0.0086 sec |      0.1642 sec
-|200        |      0.0103 sec |      0.1825 sec
-|250        |      0.0283 sec |      0.2229 sec
-|300        |      0.0140 sec |      0.2767 sec
-|350        |      0.0155 sec |      0.3353 sec
-|400        |      0.0276 sec |      0.3974 sec
-|450        |      0.0197 sec |      0.4707 sec
-|500        |      0.0215 sec |      0.4909 sec
-|550        |      0.0237 sec |      0.4965 sec
-|600        |      0.0267 sec |      0.5575 sec
-|650        |      0.0267 sec |      0.6119 sec
-|700        |      0.0290 sec |      0.6414 sec
-|750        |      0.0307 sec |      0.6886 sec
-|800        |      0.0322 sec |      0.7502 sec
-|850        |      0.0349 sec |      0.7819 sec
-|900        |      0.0362 sec |      0.8601 sec
-|950        |      0.0397 sec |      0.8724 sec
-|1000       |      0.1196 sec |      0.9616 sec
+TEST RESULTS: GetTransaction: Get specific tranasction 9fd79542c5c3291fff653050b7ee36692d29290d62e1069089a9cd95a1c0be1b 1 times.
+-----------------------------
+|Test Case  |   SBFN Local   
+-----------------------------
+|t-1        |      3.5734 sec
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Press any key to continue...
