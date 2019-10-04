@@ -22,7 +22,7 @@ namespace StratisRpc.Performance
             this.entries = new List<PerformanceEntry>();
 
             this.summaryTable = new TableBuilder(this.writer)
-                .AddColumn(new ColumnDefinition { Label = "Index", Width = 8, Alignment = ColumnAlignment.Left })
+                .AddColumn(new ColumnDefinition { Label = "Call N.", Width = 8, Alignment = ColumnAlignment.Left })
                 .AddColumn(new ColumnDefinition { Label = "Elapsed", Width = 20, Alignment = ColumnAlignment.Right })
                 .Prepare();
 
@@ -43,7 +43,7 @@ namespace StratisRpc.Performance
             this.entries.Add(entry);
 
             if (options.Enabled)
-                this.summaryTable.DrawRow($"t-{entries.Count}", entries[entries.Count - 1].Elapsed.TotalMilliseconds.ToString());
+                this.summaryTable.DrawRow($"t-{entries.Count}", this.options.TimeFormatter.Format(entries[entries.Count - 1].Elapsed));
         }
 
         public void AddText(string text)

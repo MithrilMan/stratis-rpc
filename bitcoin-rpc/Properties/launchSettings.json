@@ -2,7 +2,7 @@
   "profiles": {
     "StratisRpc": {
       "commandName": "Project",
-      "commandLineArgs": "--save"
+      "commandLineArgs": "-s results.txt -t 0 -d 4 -v 0"
     }
   }
 }

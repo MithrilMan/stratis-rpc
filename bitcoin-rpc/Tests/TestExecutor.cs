@@ -2,11 +2,18 @@
 using StratisRpc.Performance;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 
 namespace StratisRpc.Tests
 {
     public static class TestExecutor
     {
+        /// <summary>
+        /// The maximum retry numbers in case a call fails.
+        /// This tries to solve the intermittent problem with "The server returned an invalid or unrecognized response" error
+        /// </summary>
+        const int MAX_RETRY = 5;
+
         /// <summary>
         /// The services to test
         /// </summary>
@@ -29,8 +36,21 @@ namespace StratisRpc.Tests
 
                     for (int i = 0; i < count; i++)
                     {
-                        PerformanceEntry performance = performanceCollector.Measure(() => service.CallSingle(request));
-                        testResults[i].Add(new TestResult(service, count, performance));
+                        int retries = 0;
+                        while (retries < MAX_RETRY)
+                        {
+                            try
+                            {
+                                PerformanceEntry performance = performanceCollector.Measure(() => service.CallSingle(request));
+                                testResults[i].Add(new TestResult(service, count, performance));
+                                break;
+                            }
+                            catch (System.Exception ex)
+                            {
+                                Thread.Sleep(200); //introduces a wait between calls because of intermittent problem with "The server returned an invalid or unrecognized response" error
+                                retries++;
+                            }
+                        }
                     }
                 }
             }
@@ -44,7 +64,7 @@ namespace StratisRpc.Tests
             }
             else
             {
-                using (testResultCollector = new TestResultCollector($"{request.MethodToTest} repeated calls."))
+                using (testResultCollector = new TestResultCollector($"{request.MethodToTest} repeated calls ({count})."))
                 {
                     for (int i = 0; i < testResults.Length; i++)
                     {

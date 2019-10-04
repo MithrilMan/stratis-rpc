@@ -3,20 +3,23 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace StratisRpc
+namespace StratisRpc.Performance
 {
     public class TestResultCollector : IDisposable
     {
         private readonly string context;
+        private readonly UnitOfTimeFormatter timeFormatter;
 
         public OutputWriter Writer { get; }
 
         public List<(string TestCase, List<TestResult> Results)> Results { get; }
 
-        public TestResultCollector(string context, OutputWriter writer = null)
+        public TestResultCollector(string context, OutputWriter writer = null, UnitOfTimeFormatter timeFormatter = null)
         {
             this.context = context;
             this.Writer = writer ?? new OutputWriter();
+            this.timeFormatter = timeFormatter;
+            this.timeFormatter = timeFormatter ?? UnitOfTimeFormatter.Default;
 
             this.Results = new List<(string TestCase, List<TestResult> Results)>();
         }
@@ -39,7 +42,7 @@ namespace StratisRpc
                     .AddColumn(new ColumnDefinition { Label = "Test Case", Width = 10, Alignment = ColumnAlignment.Left })
                     .AddColumns(firstResult.Select(item => new ColumnDefinition
                     {
-                        Alignment = ColumnAlignment.Left,
+                        Alignment = ColumnAlignment.Right,
                         Label = item.Service.Name,
                         Width = 15
                     }).ToArray())
@@ -48,7 +51,7 @@ namespace StratisRpc
                 foreach (var result in Results)
                 {
                     List<string> values = new List<string> { result.TestCase };
-                    values.AddRange(result.Results.Select(r => r.PerformanceEntry.Elapsed.TotalMilliseconds.ToString()));
+                    values.AddRange(result.Results.Select(r => this.timeFormatter.Format(r.PerformanceEntry.Elapsed)));
                     table.DrawRow(values.ToArray());
                 }
             }

@@ -1,7 +1,7 @@
 ﻿using BitcoinLib.Responses;
 using BitcoinLib.RPC.RequestResponse;
 using Newtonsoft.Json;
-using StratisRpc.CallRequest;
+using StratisRpc.Performance;
 using System.Collections.Generic;
 using System.Linq;
 
