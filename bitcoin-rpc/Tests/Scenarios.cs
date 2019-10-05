@@ -54,11 +54,6 @@ namespace StratisRpc.Tests
                 .Execute(20)
                 .Batch();
 
-            new Tests.DecodeRawTransaction()
-                .SetOptions(this.options)
-                .Execute(20)
-                .Batch();
-
             new Tests.ValidateAddress()
                 .SetOptions(this.options)
                 .Execute(20)
