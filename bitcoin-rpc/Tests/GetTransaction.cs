@@ -22,6 +22,9 @@ namespace StratisRpc.Tests
 
         public GetTransaction GetSpecificTransaction(string txId, int repeatCount = 1, bool showStats = true)
         {
+            if (!Enabled)
+                return this;
+
             using (var testResultCollector = new TestResultCollector($"GetTransaction: Get specific tranasction {txId} {repeatCount} times."))
             {
                 CallRequest.GetTransaction request = new CallRequest.GetTransaction(txId, null);
@@ -43,11 +46,6 @@ namespace StratisRpc.Tests
             }
 
             return this;
-        }
-
-        private int JsonRpcResponse<T>(string result)
-        {
-            throw new NotImplementedException();
         }
     }
 }

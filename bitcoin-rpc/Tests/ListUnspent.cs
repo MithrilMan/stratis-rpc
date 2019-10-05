@@ -19,6 +19,9 @@ namespace StratisRpc.Tests
 
         public ListUnspent Single(bool showStats = true)
         {
+            if (!Enabled)
+                return this;
+
             using (var testResultCollector = new TestResultCollector($"Single ListUnspent call."))
             {
                 CallRequest.ListUnspent request = new CallRequest.ListUnspent(null, null, null, null, null);

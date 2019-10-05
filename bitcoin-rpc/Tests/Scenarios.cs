@@ -13,6 +13,9 @@ namespace StratisRpc.Tests
 
         public Scenarios NodeStatus(bool showStats)
         {
+            if (!Enabled)
+                return this;
+
             using (var testResultCollector = new TestResultCollector($"Node Status."))
             {
                 CallRequest.ListUnspent request = new CallRequest.ListUnspent(null, null, null, null, null);
