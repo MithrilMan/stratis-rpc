@@ -22,7 +22,7 @@ namespace StratisRpc.RpcService.BitcoinCli
 
         protected override string CallSingleImpl(TestRequest request)
         {
-            string command = $"getrawtransaction {TestData.GetTxId()} 0";
+            string command = request.ToString();
 
             string result = this.StartCommand(command);
 

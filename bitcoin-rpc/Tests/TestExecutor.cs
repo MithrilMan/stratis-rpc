@@ -1,5 +1,7 @@
 ﻿using StratisRpc.CallRequest;
+using StratisRpc.OutputFormatter;
 using StratisRpc.Performance;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -17,23 +19,43 @@ namespace StratisRpc.Tests
         /// <summary>
         /// The services to test
         /// </summary>
-        private static IRpcService[] services;
+        public static IRpcService[] Services { get; private set; }
 
-        public static void SetupServices(params IRpcService[] services)
+        public static Dictionary<IRpcService, NodeTestData> TestData { get; private set; }
+
+
+        public static void SetupServices(OutputWriter writer, params IRpcService[] services)
         {
-            TestExecutor.services = services.ToArray(); //creates a copy
+            TestExecutor.Services = services.ToArray(); //creates a copy
+
+            TestData = new Dictionary<IRpcService, NodeTestData>();
+
+            foreach (var service in services)
+            {
+                TestData.Add(service, new NodeTestData(service, writer));
+            }
         }
 
-        public static void CallNTimes(TestRequest request, int count, PerformanceCollectorOptions options, TestResultCollector testResultCollector = null)
+        public static void CallNTimes(Func<IRpcService, TestRequest> requestFactory, int count, PerformanceCollectorOptions options, TestResultCollector testResultCollector = null)
         {
+            string requestMethodName = null;
+
             List<TestResult>[] testResults = Enumerable.Range(0, count).Select((i) => new List<TestResult>()).ToArray();
 
-            foreach (var service in TestExecutor.services)
+            foreach (var service in TestExecutor.Services)
             {
+                var request = requestFactory(service);
+                if (requestMethodName == null)
+                    requestMethodName = request.MethodToTest.ToString();
+
+                options?.Writer?
+                    .WriteLine()
+                    .WriteLine($"Calling {requestMethodName} {count} times".Center(80, '~'))
+                    .WriteLine(request.ToString())
+                    .DrawLine('~');
+
                 using (PerformanceCollector performanceCollector = new PerformanceCollector(service.GetServiceDescription(), options))
                 {
-                    performanceCollector.AddText($"Call {request.MethodToTest} sequentially {count} times\n");
-
                     for (int i = 0; i < count; i++)
                     {
                         int retries = 0;
@@ -64,7 +86,7 @@ namespace StratisRpc.Tests
             }
             else
             {
-                using (testResultCollector = new TestResultCollector($"{request.MethodToTest} repeated calls ({count})."))
+                using (testResultCollector = new TestResultCollector($"{requestMethodName} repeated calls ({count})."))
                 {
                     for (int i = 0; i < testResults.Length; i++)
                     {
@@ -74,15 +96,26 @@ namespace StratisRpc.Tests
             }
         }
 
-        public static List<TestResult> CallBatch(TestRequest request, int batchSize, PerformanceCollectorOptions options, TestResultCollector testResultCollector = null)
+        public static List<TestResult> CallBatch(Func<IRpcService, TestRequest> requestFactory, int batchSize, PerformanceCollectorOptions options, TestResultCollector testResultCollector = null)
         {
+            string requestMethodName = null;
             var testResults = new List<TestResult>();
 
-            foreach (var service in TestExecutor.services)
+            foreach (var service in TestExecutor.Services)
             {
+                var request = requestFactory(service);
+                if (requestMethodName == null)
+                    requestMethodName = request.MethodToTest.ToString();
+
+                options?.Writer?
+                    .WriteLine()
+                    .WriteLine($"Calling batch of {batchSize} {requestMethodName}".Center(80, '~'))
+                    .WriteLine($"Batch of {requestMethodName}".Center('~'))
+                    .WriteLine(request.ToString())
+                    .DrawLine('~');
+
                 using (PerformanceCollector performanceCollector = new PerformanceCollector(service.GetServiceDescription(), options))
                 {
-                    performanceCollector.AddText($"Call Batch RPC of { batchSize} {request.MethodToTest} requests.");
                     PerformanceEntry performance = performanceCollector.Measure(() => service.CallBatch(Enumerable.Range(0, batchSize).Select(n => request).ToList()));
                     testResults.Add(new TestResult(service, batchSize, performance));
                 }
@@ -94,7 +127,7 @@ namespace StratisRpc.Tests
             }
             else
             {
-                using (testResultCollector = new TestResultCollector($"{request.MethodToTest} BATCH calls"))
+                using (testResultCollector = new TestResultCollector($"{requestMethodName} BATCH calls"))
                 {
                     testResultCollector.Collect(batchSize.ToString(), testResults);
                 }

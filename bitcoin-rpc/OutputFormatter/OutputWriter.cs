@@ -20,23 +20,29 @@ namespace StratisRpc.OutputFormatter
         }
 
 
-        public void Write(string text)
+        public OutputWriter Write(string text)
         {
             this.writer(text);
+
+            return this;
         }
 
 
-        public void WriteLine(string text = null)
+        public OutputWriter WriteLine(string text = null)
         {
             this.writer(text + '\n');
+
+            return this;
         }
 
-        public void DrawLine(char? character = '-', int lenght = ConsoleWidth)
+        public OutputWriter DrawLine(char? character = '-', int lenght = ConsoleWidth)
         {
             if (character == null)
-                return;
+                return this;
 
             WriteLine(string.Empty.PadRight(lenght, character.Value));
+
+            return this;
         }
     }
 }

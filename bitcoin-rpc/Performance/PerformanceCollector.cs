@@ -24,6 +24,7 @@ namespace StratisRpc.Performance
             this.summaryTable = new TableBuilder(this.writer)
                 .AddColumn(new ColumnDefinition { Label = "Call N.", Width = 8, Alignment = ColumnAlignment.Left })
                 .AddColumn(new ColumnDefinition { Label = "Elapsed", Width = 20, Alignment = ColumnAlignment.Right })
+                .AddColumn(new ColumnDefinition { Label = "Error", Width = 5, Alignment = ColumnAlignment.Center })
                 .Prepare();
 
             if (options.Enabled)
@@ -32,8 +33,6 @@ namespace StratisRpc.Performance
                 this.writer.DrawLine('=');
                 this.writer.WriteLine(context.Center());
                 this.writer.DrawLine('=');
-                this.writer.WriteLine();
-                this.writer.WriteLine();
             }
         }
 
@@ -43,7 +42,7 @@ namespace StratisRpc.Performance
             this.entries.Add(entry);
 
             if (options.Enabled)
-                this.summaryTable.DrawRow($"t-{entries.Count}", this.options.TimeFormatter.Format(entries[entries.Count - 1].Elapsed));
+                this.summaryTable.DrawRow($"t-{entries.Count}", this.options.TimeFormatter.Format(entries[entries.Count - 1].Elapsed), entry.HasError ? "*" : String.Empty);
         }
 
         public void AddText(string text)
@@ -91,7 +90,6 @@ namespace StratisRpc.Performance
                 this.writer.WriteLine();
             }
 
-            this.writer.DrawLine('=');
             this.writer.DrawLine('=');
             this.writer.WriteLine();
         }

@@ -1,4 +1,5 @@
 ﻿using StratisRpc.CallRequest;
+using System;
 
 namespace StratisRpc.Tests
 {
@@ -6,9 +7,9 @@ namespace StratisRpc.Tests
     {
         public GetRawTransaction() : base(MethodToTest.GetRawTransaction) { }
 
-        public override GetRawTransaction Batch(string title = null, bool showResult = false, TestRequest request = null, params int[] batchSizes)
+        public override GetRawTransaction Batch(string title = null, bool showResult = false, Func<IRpcService, TestRequest> requestFactory = null, params int[] batchSizes)
         {
-            return base.Batch(title, showResult, request, 1, 10, 15, 30, 60, 120);
+            return base.Batch(title, showResult, requestFactory, 1, 10, 15, 30, 60, 120);
         }
     }
 }

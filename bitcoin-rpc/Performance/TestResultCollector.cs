@@ -51,7 +51,7 @@ namespace StratisRpc.Performance
                 foreach (var result in Results)
                 {
                     List<string> values = new List<string> { result.TestCase };
-                    values.AddRange(result.Results.Select(r => this.timeFormatter.Format(r.PerformanceEntry.Elapsed)));
+                    values.AddRange(result.Results.Select(r => $"{(r.PerformanceEntry.HasError ? "* " : String.Empty)}{this.timeFormatter.Format(r.PerformanceEntry.Elapsed)}"));
                     table.DrawRow(values.ToArray());
                 }
             }

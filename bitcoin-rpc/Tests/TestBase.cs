@@ -1,6 +1,7 @@
 ﻿using StratisRpc.CallRequest;
 using StratisRpc.Performance;
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.Threading;
 
@@ -20,52 +21,56 @@ namespace StratisRpc.Tests
 
         public MethodToTest MethodToTest { get; }
 
-        public TestRequest DefaultRequest { get; set; }
+        public Dictionary<IRpcService, TestRequest> DefaultRequest { get; set; }
 
         public TestBase(MethodToTest methodToTest)
         {
             this.MethodToTest = methodToTest;
 
-            this.DefaultRequest = TestRequestFactory.CreateRequestFor(methodToTest);
+            this.DefaultRequest = new Dictionary<IRpcService, TestRequest>();
+            foreach (var service in TestExecutor.Services)
+            {
+                this.DefaultRequest.Add(service, TestRequestFactory.CreateRequestFor(methodToTest, TestExecutor.TestData[service]));
+            }
+
             this.options = PerformanceCollectorOptions.Default;
             this.Enabled = true;
         }
 
-        protected void CallNTimes(TestRequest request, int count, PerformanceCollectorOptions options, TestResultCollector testResultCollector = null)
+        protected void CallNTimes(Func<IRpcService, TestRequest> requestFactory, int count, PerformanceCollectorOptions options, TestResultCollector testResultCollector = null)
         {
-            TestExecutor.CallNTimes(request, count, options, testResultCollector);
+            TestExecutor.CallNTimes(requestFactory, count, options, testResultCollector);
         }
 
-        protected List<TestResult> CallBatch(TestRequest request, int batchSize, PerformanceCollectorOptions options, TestResultCollector testResultCollector = null)
+        protected List<TestResult> CallBatch(Func<IRpcService, TestRequest> requestFactory, int batchSize, PerformanceCollectorOptions options, TestResultCollector testResultCollector = null)
         {
-            return TestExecutor.CallBatch(request, batchSize, options, testResultCollector);
+            return TestExecutor.CallBatch(requestFactory, batchSize, options, testResultCollector);
         }
 
-        public virtual T Batch(string title = null, bool showResult = false, TestRequest request = null, params int[] batchSizes)
+        public virtual T Batch(string title = null, bool showResult = false, Func<IRpcService, TestRequest> requestFactory = null, params int[] batchSizes)
         {
             if (Enabled)
             {
                 if (batchSizes.Length == 0)
                     batchSizes = new int[] { 1, 5, 10 };
 
-                title = title ?? $"{this.DefaultRequest.ToString()} Batch";
-                request = request ?? this.DefaultRequest;
+                title = title ?? $"Batch";
 
                 using (var collector = new TestResultCollector(title))
                 {
                     for (int i = 0; i < batchSizes.Length; i++)
-                        this.CallBatch(request, batchSizes[i], options, collector);
+                        this.CallBatch(requestFactory ?? (service => this.DefaultRequest[service]), batchSizes[i], options, collector);
                 }
             }
 
             return (T)this;
         }
 
-        public virtual T Execute(int count = 20, TestRequest request = null)
+        public virtual T Execute(int count = 20, Func<IRpcService, TestRequest> requestFactory = null)
         {
             if (Enabled)
             {
-                this.CallNTimes(request ?? this.DefaultRequest, count, options);
+                this.CallNTimes(requestFactory ?? (service => this.DefaultRequest[service]), count, options);
             }
 
             return (T)this;
@@ -81,9 +86,11 @@ namespace StratisRpc.Tests
         /// <summary>
         /// Waits a console input before proceeding.
         /// </summary>
-        public T Wait()
+        /// <param name="condition">if condition is set to true, wait an user input before proceeding.</param>
+        /// <returns></returns>
+        public T Wait(bool condition = true)
         {
-            if (Enabled)
+            if (Enabled && condition)
             {
                 Console.WriteLine("Press any key to continue...");
                 while (!Console.KeyAvailable)

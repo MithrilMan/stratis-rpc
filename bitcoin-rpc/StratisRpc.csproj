@@ -13,4 +13,8 @@
     <PackageReference Include="Easy.Common" Version="3.5.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="RpcService\BitcoinCli\" />
+  </ItemGroup>
+
 </Project>

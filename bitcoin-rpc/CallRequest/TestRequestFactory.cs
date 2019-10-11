@@ -1,4 +1,5 @@
-﻿using System;
+﻿using StratisRpc.Tests;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -6,24 +7,24 @@ namespace StratisRpc.CallRequest
 {
     public static class TestRequestFactory
     {
-        public static TestRequest CreateRequestFor(MethodToTest methodToTest)
+        public static TestRequest CreateRequestFor(MethodToTest methodToTest, NodeTestData testData)
         {
             switch (methodToTest)
             {
                 case MethodToTest.GetBlockCount:
                     return new GetBlockCount();
                 case MethodToTest.GetTransaction:
-                    return new GetTransaction(TestData.GetTxId(), null);
+                    return new GetTransaction(testData.GetTxId(), null);
                 case MethodToTest.GetRawTransaction:
-                    return new GetRawTransaction(TestData.GetTxId(), 1, null);
+                    return new GetRawTransaction(testData.GetTxId(), 1, null);
                 case MethodToTest.DecodeRawTransaction:
-                    return new DecodeRawTransaction(TestData.GetTxId(), null);
+                    return new DecodeRawTransaction(testData.GetRawHex(), null);
                 case MethodToTest.ValidateAddress:
-                    return new ValidateAddress(TestData.GetAddress());
+                    return new ValidateAddress(testData.GetAddress());
                 case MethodToTest.GetBlockHash:
-                    return new GetBlockHash(TestData.BlockHeight);
+                    return new GetBlockHash(testData.BlockCount);
                 case MethodToTest.GetBlock:
-                    return new GetBlock(TestData.BlockHash, null);
+                    return new GetBlock(testData.BlockHash, null);
                 case MethodToTest.GetBalance:
                     return new GetBalance(null, null, null);
                 case MethodToTest.ListUnspent:

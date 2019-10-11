@@ -19,7 +19,7 @@ namespace StratisRpc.Tests
             using (var testResultCollector = new TestResultCollector($"Node Status."))
             {
                 CallRequest.ListUnspent request = new CallRequest.ListUnspent(null, null, null, null, null);
-                this.CallNTimes(request, 1, this.options, testResultCollector);
+                this.CallNTimes(_ => request, 1, this.options, testResultCollector);
 
                 TestResult testResult = testResultCollector.Results.First().Results.First();
 
@@ -32,60 +32,70 @@ namespace StratisRpc.Tests
             return this;
         }
 
-        public Scenarios CheckAllMethods()
+        public Scenarios CheckAllMethods(bool waitBetweenTests)
         {
             if (!Enabled)
                 return this;
 
             new Tests.GetBlockCount()
                 .SetOptions(this.options)
-                .Execute(20)
-                .Batch();
+                .Execute(10)
+                .Batch()
+                .Wait(waitBetweenTests);
 
             new Tests.GetTransaction()
                 .SetOptions(this.options)
-                .Execute(20)
-                .Batch();
+                .Execute(10)
+                .Batch()
+                .Wait(waitBetweenTests);
 
             new Tests.GetRawTransaction()
                 .SetOptions(this.options)
-                .Execute(20)
-                .Batch();
+                .Execute(10)
+                .Batch()
+                .Wait(waitBetweenTests);
 
             new Tests.DecodeRawTransaction()
                 .SetOptions(this.options)
-                .Execute(20)
-                .Batch();
+                .Execute(10)
+                .Batch()
+                .Wait(waitBetweenTests);
 
             new Tests.ValidateAddress()
                 .SetOptions(this.options)
-                .Execute(20)
-                .Batch();
+                .Execute(10)
+                .Batch()
+                .Wait(waitBetweenTests);
 
             new Tests.GetBlockHash()
                 .SetOptions(this.options)
-                .Execute(20)
-                .Batch();
+                .Execute(10)
+                .Batch()
+                .Wait(waitBetweenTests);
 
             new Tests.GetBlock()
                 .SetOptions(this.options)
-                .Execute(20)
-                .Batch();
+                .Execute(10)
+                .Batch()
+                .Wait(waitBetweenTests);
 
             new Tests.GetBalance()
                 .SetOptions(this.options)
-                .Execute(20)
-                .Batch();
+                .Execute(10)
+                .Batch()
+                .Wait(waitBetweenTests);
 
             new Tests.ListUnspent()
                 .SetOptions(this.options)
-                .Execute(20)
-                .Batch();
+                .Execute(10)
+                .Batch()
+                .Wait(waitBetweenTests);
 
             new Tests.ListAddressGroupings()
                 .SetOptions(this.options)
-                .Execute(20)
-                .Batch();
+                .Execute(10)
+                .Batch()
+                .Wait(waitBetweenTests);
 
             /// SendMany **W
 

@@ -11,6 +11,7 @@ using Newtonsoft.Json;
 using System.Globalization;
 using System.Collections.Generic;
 using Newtonsoft.Json.Converters;
+using StratisRpc.OutputFormatter;
 
 namespace StratisRpc
 {
@@ -26,9 +27,10 @@ namespace StratisRpc
         static Dictionary<VerbosityLevel, PerformanceCollectorOptions> verbosityLevels = new Dictionary<VerbosityLevel, PerformanceCollectorOptions>
         {
             {VerbosityLevel.SummaryOnly, PerformanceCollectorOptions.Disabled },
-            {VerbosityLevel.HideResponses, new PerformanceCollectorOptions { ShowResponses = false }},
-            {VerbosityLevel.ShowResponses, new PerformanceCollectorOptions { ShowResponses = true }},
+            {VerbosityLevel.HideResponses, new PerformanceCollectorOptions { ShowResponses = false, Writer = new OutputWriter() }},
+            {VerbosityLevel.ShowResponses, new PerformanceCollectorOptions { ShowResponses = true, Writer = new OutputWriter() }},
         };
+
         private static PerformanceCollectorOptions verbosityLevel;
 
         public class Options
@@ -57,7 +59,7 @@ namespace StratisRpc
             CultureInfo.DefaultThreadCurrentCulture = CultureInfo.InvariantCulture;
             CultureInfo.DefaultThreadCurrentUICulture = CultureInfo.InvariantCulture;
 
-            var x = new Parser();
+            PerformanceCollectorOptions.Default.Writer = PerformanceCollectorOptions.Disabled.Writer = new OutputWriter();
 
             Parser.Default.ParseArguments<Options>(args)
                 .MapResult(options =>
@@ -83,9 +85,6 @@ namespace StratisRpc
             UnitOfTimeFormatter.Default.Unit = options.TimeUnit;
             UnitOfTimeFormatter.Default.Decimals = options.TimeDecimals;
 
-            InitializeConnectors();
-
-            Warmup(options);
 
             if (options.FilePath != null)
             {
@@ -96,25 +95,18 @@ namespace StratisRpc
                 {
                     using (new ConsoleMirroring(writer))
                     {
+                        InitializeConnectors();
                         DoTests(options);
                     }
                 }
             }
             else
             {
+                InitializeConnectors();
                 DoTests(options);
             }
         }
 
-        private static void Warmup(Options options)
-        {
-            Console.WriteLine("WARMUP");
-            TestExecutor.CallBatch(TestRequestFactory.CreateRequestFor(MethodToTest.GetBlockCount), 1, PerformanceCollectorOptions.Disabled);
-            Console.WriteLine("END OF WARMUP, don't consider results above.");
-            Console.Clear();
-
-            Console.WriteLine($"Using these options: {JsonConvert.SerializeObject(options, Formatting.Indented)}");
-        }
 
         private static void InitializeConnectors()
         {
@@ -138,15 +130,9 @@ namespace StratisRpc
             IPEndPoint rpcUrlSbfn = getEndPoint("nodemca", settings.rpcPort);
             IPEndPoint rpcUrlSbfnLocal = getEndPoint("localhost", settings.rpcPort);
 
-            TestExecutor.SetupServices(
-                //new BitcoinlibRpcService("X Node", rpcUrlX, settings.rpcUser, settings.rpcPassword, settings.walletPassword, settings.timeout),
-                //new BitcoinlibRpcService("SBFN", rpcUrlSbfn, settings.rpcUser, settings.rpcPassword, settings.walletPassword, settings.timeout),
-
-                //new BitcoinCliRpcService("X Node", settings.bitcoinCliPath, rpcUrlX, settings.rpcUser, settings.rpcPassword, settings.walletPassword, settings.timeout),
-                //new BitcoinCliRpcService("SBFN", settings.bitcoinCliPath, rpcUrlSbfn, settings.rpcUser, settings.rpcPassword, settings.walletPassword, settings.timeout),
-
-               // new RestClientRpcService("X Node", rpcUrlX, settings.rpcUser, settings.rpcPassword, settings.walletPassword, settings.timeout),
-            //new RestClientRpcService("SBFN", rpcUrlSbfn, settings.rpcUser, settings.rpcPassword, settings.walletPassword, settings.timeout),
+            TestExecutor.SetupServices(new OutputWriter(),
+              // new RestClientRpcService("X Node", rpcUrlX, settings.rpcUser, settings.rpcPassword, settings.walletPassword, settings.timeout),
+              //new RestClientRpcService("SBFN", rpcUrlSbfn, settings.rpcUser, settings.rpcPassword, settings.walletPassword, settings.timeout),
               new RestClientRpcService("SBFN Local", rpcUrlSbfnLocal, settings.rpcUser, settings.rpcPassword, settings.walletPassword, settings.timeout)
             );
         }
@@ -156,29 +142,49 @@ namespace StratisRpc
             Console.WriteLine($"Current Time (UTC  ---  Local): {DateTime.UtcNow}  ---  {DateTime.Now}");
 
             new Tests.Scenarios()
-               .Disable()
+               //.Disable()
                .SetOptions(verbosityLevel)
-               .CheckAllMethods();
+               .CheckAllMethods(true);
 
 
-            new Tests.GetTransaction()
-               .Disable()
-               .SetOptions(verbosityLevel)
-               //.SetOptions(verbosityLevels[VerbosityLevel.ShowResponses])
-               //.Execute(10)
-               //.Batch()
-               .GetSpecificTransaction("8fd79542c5c3291fff653050b7ee36692d29290d62e1069089a9cd95a1c0be1b", 5)
-               .GetSpecificTransaction("9fd79542c5c3291fff653050b7ee36692d29290d62e1069089a9cd95a1c0be1b", 5)
-               .Wait();
+            //new Tests.GetTransaction()
+            //   .Disable()
+            //   .SetOptions(verbosityLevel)
+            //   //.SetOptions(verbosityLevels[VerbosityLevel.ShowResponses])
+            //   //.Execute(10)
+            //   //.Batch()
+            //   .GetSpecificTransaction("8fd79542c5c3291fff653050b7ee36692d29290d62e1069089a9cd95a1c0be1b", 5)
+            //   .GetSpecificTransaction("9fd79542c5c3291fff653050b7ee36692d29290d62e1069089a9cd95a1c0be1b", 5)
+            //   .Wait();
 
-            new Tests.ListUnspent()
-           //    .Disable()
-               .SetOptions(verbosityLevel)
-               //.SetOptions(verbosityLevels[VerbosityLevel.ShowResponses])
-               //.Execute(10)
-               //.Batch()
-               .Single(true)
-               .Wait();
+            //new Tests.ListUnspent()
+            //   .Disable()
+            //   .SetOptions(verbosityLevel)
+            //   .Execute(20)
+            //   //.Batch()
+            //   // .Single(true)
+            //   .Wait();
+
+            //new Tests.GetBalance()
+            //   .Disable()
+            //   .SetOptions(verbosityLevel)
+            //   .Execute(5)
+            //   //.Batch()
+            //   .Wait();
+
+            //new Tests.DecodeRawTransaction()
+            //  //.Disable()
+            //  .SetOptions(verbosityLevel)
+            //  .Execute(5)
+            //  //.Batch()
+            //  .Wait();
+
+            //new Tests.GetRawTransaction()
+            //  .Disable()
+            //  .SetOptions(verbosityLevel)
+            //  .Execute(5)
+            //  //.Batch()
+            //  .Wait();
         }
     }
 }

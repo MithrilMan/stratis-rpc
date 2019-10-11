@@ -13,9 +13,9 @@ namespace StratisRpc.Tests
     {
         public GetTransaction() : base(MethodToTest.GetTransaction) { }
 
-        public override GetTransaction Batch(string title = null, bool showResult = false, TestRequest request = null, params int[] batchSizes)
+        public override GetTransaction Batch(string title = null, bool showResult = false, Func<IRpcService, TestRequest> requestFactory = null, params int[] batchSizes)
         {
-            return base.Batch(title, showResult, request, 1, 5, 10);
+            return base.Batch(title, showResult, requestFactory, 1, 5, 10);
         }
 
 
@@ -28,7 +28,7 @@ namespace StratisRpc.Tests
             using (var testResultCollector = new TestResultCollector($"GetTransaction: Get specific tranasction {txId} {repeatCount} times."))
             {
                 CallRequest.GetTransaction request = new CallRequest.GetTransaction(txId, null);
-                this.CallNTimes(request, repeatCount, this.options, testResultCollector);
+                this.CallNTimes(_ => request, repeatCount, this.options, testResultCollector);
 
                 TestResult testResult = testResultCollector.Results.First().Results.First();
 
