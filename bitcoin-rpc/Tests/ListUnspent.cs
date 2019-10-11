@@ -13,9 +13,11 @@ namespace StratisRpc.Tests
     {
         public ListUnspent() : base(MethodToTest.ListUnspent) { }
 
-        public override ListUnspent Batch(string title = null, bool showResult = false, Func<IRpcService, TestRequest> requestFactory = null, params int[] batchSizes)
+        public override ListUnspent Batch(string title = null, Func<IRpcService, TestRequest> requestFactory = null, params int[] batchSizes)
         {
-            return base.Batch(title, showResult, requestFactory, 1, 2, 3, 4, 5);
+            if (batchSizes.Length == 0) batchSizes = this.Range(0, 5, 1).ToArray();
+
+            return base.Batch(title, requestFactory, batchSizes);
         }
 
         public ListUnspent Single(bool showStats = true)

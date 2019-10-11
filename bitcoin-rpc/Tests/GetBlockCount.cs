@@ -8,9 +8,11 @@ namespace StratisRpc.Tests
     {
         public GetBlockCount() : base(MethodToTest.GetBlockCount) { }
 
-        public override GetBlockCount Batch(string title = null, bool showResult = false, Func<IRpcService, TestRequest> requestFactory = null, params int[] batchSizes)
+        public override GetBlockCount Batch(string title = null, Func<IRpcService, TestRequest> requestFactory = null, params int[] batchSizes)
         {
-            return base.Batch(title, showResult, requestFactory, this.RangeExponential(120, 2, 4).ToArray());
+            if (batchSizes.Length == 0) batchSizes = this.RangeExponential(120, 2, 4).ToArray();
+
+            return base.Batch(title, requestFactory, batchSizes);
         }
     }
 }

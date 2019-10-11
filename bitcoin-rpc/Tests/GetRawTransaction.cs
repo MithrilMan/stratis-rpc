@@ -1,5 +1,6 @@
 ﻿using StratisRpc.CallRequest;
 using System;
+using System.Linq;
 
 namespace StratisRpc.Tests
 {
@@ -7,9 +8,11 @@ namespace StratisRpc.Tests
     {
         public GetRawTransaction() : base(MethodToTest.GetRawTransaction) { }
 
-        public override GetRawTransaction Batch(string title = null, bool showResult = false, Func<IRpcService, TestRequest> requestFactory = null, params int[] batchSizes)
+        public override GetRawTransaction Batch(string title = null, Func<IRpcService, TestRequest> requestFactory = null, params int[] batchSizes)
         {
-            return base.Batch(title, showResult, requestFactory, 1, 10, 15, 30, 60, 120);
+            if (batchSizes.Length == 0) batchSizes = this.RangeExponential(15, 2, 4).ToArray();
+
+            return base.Batch(title, requestFactory, batchSizes);
         }
     }
 }

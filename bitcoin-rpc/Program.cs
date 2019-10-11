@@ -74,6 +74,8 @@ namespace StratisRpc
                         return 1;
                     }
 
+                    Console.WriteLine($"Using these options: {JsonConvert.SerializeObject(options, Formatting.Indented)}");
+
                     RunApplication(options);
                     return 0;
                 },
@@ -142,10 +144,14 @@ namespace StratisRpc
             Console.WriteLine($"Current Time (UTC  ---  Local): {DateTime.UtcNow}  ---  {DateTime.Now}");
 
             new Tests.Scenarios()
-               //.Disable()
+               .Disable()
                .SetOptions(verbosityLevel)
                .CheckAllMethods(true);
 
+            new Tests.DecodeRawTransaction()
+               //.Disable()
+               .SetOptions(verbosityLevel)
+               .Batch(null, null, 1000);
 
             //new Tests.GetTransaction()
             //   .Disable()
@@ -156,35 +162,6 @@ namespace StratisRpc
             //   .GetSpecificTransaction("8fd79542c5c3291fff653050b7ee36692d29290d62e1069089a9cd95a1c0be1b", 5)
             //   .GetSpecificTransaction("9fd79542c5c3291fff653050b7ee36692d29290d62e1069089a9cd95a1c0be1b", 5)
             //   .Wait();
-
-            //new Tests.ListUnspent()
-            //   .Disable()
-            //   .SetOptions(verbosityLevel)
-            //   .Execute(20)
-            //   //.Batch()
-            //   // .Single(true)
-            //   .Wait();
-
-            //new Tests.GetBalance()
-            //   .Disable()
-            //   .SetOptions(verbosityLevel)
-            //   .Execute(5)
-            //   //.Batch()
-            //   .Wait();
-
-            //new Tests.DecodeRawTransaction()
-            //  //.Disable()
-            //  .SetOptions(verbosityLevel)
-            //  .Execute(5)
-            //  //.Batch()
-            //  .Wait();
-
-            //new Tests.GetRawTransaction()
-            //  .Disable()
-            //  .SetOptions(verbosityLevel)
-            //  .Execute(5)
-            //  //.Batch()
-            //  .Wait();
         }
     }
 }

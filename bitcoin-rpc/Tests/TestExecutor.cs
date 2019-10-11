@@ -110,7 +110,6 @@ namespace StratisRpc.Tests
                 options?.Writer?
                     .WriteLine()
                     .WriteLine($"Calling batch of {batchSize} {requestMethodName}".Center(80, '~'))
-                    .WriteLine($"Batch of {requestMethodName}".Center('~'))
                     .WriteLine(request.ToString())
                     .DrawLine('~');
 

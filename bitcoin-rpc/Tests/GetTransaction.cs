@@ -13,9 +13,11 @@ namespace StratisRpc.Tests
     {
         public GetTransaction() : base(MethodToTest.GetTransaction) { }
 
-        public override GetTransaction Batch(string title = null, bool showResult = false, Func<IRpcService, TestRequest> requestFactory = null, params int[] batchSizes)
+        public override GetTransaction Batch(string title = null, Func<IRpcService, TestRequest> requestFactory = null, params int[] batchSizes)
         {
-            return base.Batch(title, showResult, requestFactory, 1, 5, 10);
+            if (batchSizes.Length == 0) batchSizes = this.RangeExponential(5, 2, 2).ToArray();
+
+            return base.Batch(title, requestFactory, batchSizes);
         }
 
 

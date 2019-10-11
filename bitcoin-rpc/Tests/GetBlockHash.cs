@@ -8,9 +8,11 @@ namespace StratisRpc.Tests
     {
         public GetBlockHash() : base(MethodToTest.GetBlockHash) { }
 
-        public override GetBlockHash Batch(string title = null, bool showResult = false, Func<IRpcService, TestRequest> requestFactory = null, params int[] batchSizes)
+        public override GetBlockHash Batch(string title = null, Func<IRpcService, TestRequest> requestFactory = null, params int[] batchSizes)
         {
-            return base.Batch(title, showResult, requestFactory, this.Range(0, 1000, 50).ToArray());
+            if (batchSizes.Length == 0) batchSizes = this.Range(0, 1000, 50).ToArray();
+
+            return base.Batch(title, requestFactory, batchSizes);
         }
     }
 }

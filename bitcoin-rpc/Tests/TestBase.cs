@@ -47,7 +47,7 @@ namespace StratisRpc.Tests
             return TestExecutor.CallBatch(requestFactory, batchSize, options, testResultCollector);
         }
 
-        public virtual T Batch(string title = null, bool showResult = false, Func<IRpcService, TestRequest> requestFactory = null, params int[] batchSizes)
+        public virtual T Batch(string title = null, Func<IRpcService, TestRequest> requestFactory = null, params int[] batchSizes)
         {
             if (Enabled)
             {
