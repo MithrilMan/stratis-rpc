@@ -48,11 +48,12 @@ namespace StratisRpc.Tests
                 if (requestMethodName == null)
                     requestMethodName = request.MethodToTest.ToString();
 
-                options?.Writer?
-                    .WriteLine()
-                    .WriteLine($"Calling {requestMethodName} {count} times".Center(80, '~'))
-                    .WriteLine(request.ToString())
-                    .DrawLine('~');
+                if (options.Enabled)
+                    options?.Writer?
+                        .WriteLine()
+                        .WriteLine($"Calling {requestMethodName} {count} times".Center(80, '~'))
+                        .WriteLine(request.ToString())
+                        .DrawLine('~');
 
                 using (PerformanceCollector performanceCollector = new PerformanceCollector(service.GetServiceDescription(), options))
                 {
@@ -107,11 +108,12 @@ namespace StratisRpc.Tests
                 if (requestMethodName == null)
                     requestMethodName = request.MethodToTest.ToString();
 
-                options?.Writer?
-                    .WriteLine()
-                    .WriteLine($"Calling batch of {batchSize} {requestMethodName}".Center(80, '~'))
-                    .WriteLine(request.ToString())
-                    .DrawLine('~');
+                if (options.Enabled)
+                    options?.Writer?
+                        .WriteLine()
+                        .WriteLine($"Calling batch of {batchSize} {requestMethodName}".Center(80, '~'))
+                        .WriteLine(request.ToString())
+                        .DrawLine('~');
 
                 using (PerformanceCollector performanceCollector = new PerformanceCollector(service.GetServiceDescription(), options))
                 {
