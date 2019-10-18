@@ -144,14 +144,34 @@ namespace StratisRpc
             Console.WriteLine($"Current Time (UTC  ---  Local): {DateTime.UtcNow}  ---  {DateTime.Now}");
 
             new Tests.Scenarios()
-               .Disable()
-               .SetOptions(verbosityLevel)
-               .CheckAllMethods(true);
-
-            new Tests.DecodeRawTransaction()
                //.Disable()
                .SetOptions(verbosityLevel)
-               .Batch(null, null, 1000);
+               //.CheckAllMethods(false)
+               .TestSendMany(10, 1)
+               .TestSendMany(100, 1)
+               .TestSendMany(10, 100)
+               .TestSendMany(100, 100)
+               ;
+
+            //new Tests.GetBalance()
+            //   //.Disable()
+            //   .SetOptions(verbosityLevel)
+            //   .SetOptions(verbosityLevels[VerbosityLevel.ShowResponses])
+            //   .Execute(1)
+            //   ;
+
+            new Tests.SendMany()
+               .Disable()
+               .SetOptions(verbosityLevel)
+               .SetOptions(verbosityLevels[VerbosityLevel.ShowResponses])
+               .Execute(1)
+               ;
+
+            //new Tests.DecodeRawTransaction()
+            //   //.Disable()
+            //   .SetOptions(verbosityLevel)
+            //   .SetOptions(verbosityLevels[VerbosityLevel.ShowResponses])
+            //   .Batch(null, null, 1000);
 
             //new Tests.GetTransaction()
             //   .Disable()

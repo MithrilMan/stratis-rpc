@@ -11,7 +11,7 @@ namespace StratisRpc.CallRequest
         /// <summary>
         /// The method to test.
         /// </summary>
-        public readonly MethodToTest MethodToTest;
+        public string MethodName { get; protected set; }
 
         /// <summary>
         /// The list of parameters to pass to the call.
@@ -21,7 +21,13 @@ namespace StratisRpc.CallRequest
 
         public TestRequest(MethodToTest methodToTest)
         {
-            this.MethodToTest = methodToTest;
+            this.MethodName = methodToTest.ToString();
+            this.Parameters = new List<(string, object)>();
+        }
+
+        public TestRequest(string methodToTest)
+        {
+            this.MethodName = methodToTest;
             this.Parameters = new List<(string, object)>();
         }
 
@@ -45,7 +51,7 @@ namespace StratisRpc.CallRequest
 
         public override string ToString()
         {
-            StringBuilder sb = new StringBuilder(this.MethodToTest.ToString());
+            StringBuilder sb = new StringBuilder(this.MethodName);
 
             foreach (var parameter in this.Parameters)
             {
@@ -74,7 +80,7 @@ namespace StratisRpc.CallRequest
         {
             var json = JsonConvert.SerializeObject(new
             {
-                method = this.MethodToTest.ToString().ToLower(),
+                method = this.MethodName.ToLower(),
                 @params = this.Parameters
                     .Where(p => p.Value != null)
                     .Select(p => p.Value),
