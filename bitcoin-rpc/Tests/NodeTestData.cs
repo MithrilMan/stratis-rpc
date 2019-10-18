@@ -26,6 +26,8 @@ namespace StratisRpc.Tests
         public int BlockCount { get; private set; }
         public string BlockHash { get; private set; }
 
+        public int AddressCount => this.addresses?.Count ?? 0;
+        public int UtxoCount => this.unspentTxIds?.Count ?? 0;
 
         public NodeTestData(IRpcService rpcService, OutputWriter writer)
         {
