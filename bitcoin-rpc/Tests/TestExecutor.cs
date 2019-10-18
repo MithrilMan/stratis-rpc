@@ -46,7 +46,7 @@ namespace StratisRpc.Tests
             {
                 var request = requestFactory(service);
                 if (requestMethodName == null)
-                    requestMethodName = request.MethodToTest.ToString();
+                    requestMethodName = request.MethodName;
 
                 if (options.Enabled)
                     options?.Writer?
@@ -106,7 +106,7 @@ namespace StratisRpc.Tests
             {
                 var request = requestFactory(service);
                 if (requestMethodName == null)
-                    requestMethodName = request.MethodToTest.ToString();
+                    requestMethodName = request.MethodName;
 
                 if (options.Enabled)
                     options?.Writer?

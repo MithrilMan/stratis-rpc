@@ -32,21 +32,8 @@ namespace StratisRpc.RpcService.Bitcoinlib
                 case DecodeRawTransaction req:
                     return service.DecodeRawTransaction(req.HexString).ToString();
                 default:
-                    throw new NotImplementedException(request.MethodToTest.ToString());
+                    throw new NotImplementedException(request.MethodName);
 
-            }
-
-            switch (request.MethodToTest)
-            {
-                case MethodToTest.ValidateAddress:
-                case MethodToTest.GetBlockHash:
-                case MethodToTest.GetBlock:
-                case MethodToTest.GetBalance:
-                case MethodToTest.ListUnspent:
-                case MethodToTest.ListAddressGroupings:
-                case MethodToTest.SendMany:
-                default:
-                    throw new NotImplementedException(request.MethodToTest.ToString());
             }
         }
 

@@ -1,6 +1,8 @@
 ﻿using Newtonsoft.Json;
+using StratisRpc.CallRequest;
 using StratisRpc.CallResponse;
 using StratisRpc.OutputFormatter;
+using StratisRpc.Performance;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,6 +14,8 @@ namespace StratisRpc.Tests
     /// </summary>
     public class NodeTestData
     {
+        private const int WALLET_UNLOCK_TIMEOUT = 300;
+
         private readonly IRpcService rpcService;
         private readonly OutputWriter writer;
         private List<string> unspentTxIds;
@@ -68,6 +72,13 @@ namespace StratisRpc.Tests
                 return ParseResponse<GetTransactionResponse>(new CallRequest.GetTransaction(txId, false)).Hex;
             }).ToList();
             this.writer.WriteLine($"{"Loaded Raw unspent tx Hex".AlignLeft(labelColumnWidth)}{this.rawUnspentTxHex.Count}");
+
+            this.writer.WriteLine($"Unlocking wallet for {WALLET_UNLOCK_TIMEOUT} seconds");
+            TestExecutor.CallNTimes(
+                service => new GenericCall("walletpassphrase", ("passphrase", service.WalletPassword), ("timeout", WALLET_UNLOCK_TIMEOUT)),
+                1,
+                PerformanceCollectorOptions.Disabled
+                );
 
             this.writer
                 .DrawLine('.')

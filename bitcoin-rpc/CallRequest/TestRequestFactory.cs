@@ -1,6 +1,8 @@
-﻿using StratisRpc.Tests;
+﻿using Newtonsoft.Json;
+using StratisRpc.Tests;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace StratisRpc.CallRequest
@@ -32,6 +34,19 @@ namespace StratisRpc.CallRequest
                 case MethodToTest.ListAddressGroupings:
                     return new ListAddressGroupings();
                 case MethodToTest.SendMany:
+                    List<Tests.SendMany.Destination> destinations = new List<Tests.SendMany.Destination>{
+                        new Tests.SendMany.Destination(testData.GetAddress(0), 1, false),
+                        new Tests.SendMany.Destination(testData.GetAddress(1), 1, true),
+                        new Tests.SendMany.Destination(testData.GetAddress(2), 1, true),
+                    };
+                    var amounts = destinations.ToDictionary(d=>d.DestinationAddress, d=>d.Amount);
+                    string jsonAmounts = JsonConvert.SerializeObject(amounts);
+
+                    var subtractFees = destinations.Where(dest => dest.SubtractFees).Select(dest => dest.DestinationAddress).Distinct().ToArray();
+                    string jsonSubtractFees = JsonConvert.SerializeObject(subtractFees);
+
+                    CallRequest.SendMany request = new CallRequest.SendMany(string.Empty, jsonAmounts, null, null, jsonSubtractFees, null, null, "UNSET");
+                    return request;
                 default:
                     throw new Exception("Unknown method to test.");
             }

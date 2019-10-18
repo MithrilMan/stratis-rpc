@@ -9,6 +9,8 @@ namespace StratisRpc
     {
         string Name { get; }
 
+        string WalletPassword { get; }
+
         string GetServiceDescription();
 
         /// <summary>
