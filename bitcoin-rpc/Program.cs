@@ -146,19 +146,19 @@ namespace StratisRpc
             new Tests.Scenarios()
                //.Disable()
                .SetOptions(verbosityLevel)
-               //.CheckAllMethods(false)
-               .TestSendMany(10, 1)
-               .TestSendMany(100, 1)
-               .TestSendMany(10, 100)
-               .TestSendMany(100, 100)
+               .CheckAllMethods(false)
+               //.TestSendMany(10, 1)
+               //.TestSendMany(100, 1)
+               //.TestSendMany(10, 100)
+               //.TestSendMany(100, 100)
                ;
 
-            //new Tests.GetBalance()
-            //   //.Disable()
-            //   .SetOptions(verbosityLevel)
-            //   .SetOptions(verbosityLevels[VerbosityLevel.ShowResponses])
-            //   .Execute(1)
-            //   ;
+            new Tests.GetBalance()
+               .Disable()
+               .SetOptions(verbosityLevel)
+               .SetOptions(verbosityLevels[VerbosityLevel.ShowResponses])
+               .Execute(1)
+               ;
 
             new Tests.SendMany()
                .Disable()
@@ -167,11 +167,13 @@ namespace StratisRpc
                .Execute(1)
                ;
 
-            //new Tests.DecodeRawTransaction()
-            //   //.Disable()
-            //   .SetOptions(verbosityLevel)
-            //   .SetOptions(verbosityLevels[VerbosityLevel.ShowResponses])
-            //   .Batch(null, null, 1000);
+            new Tests.DecodeRawTransaction()
+               .Disable()
+               .SetOptions(verbosityLevel)
+               //.SetOptions(verbosityLevels[VerbosityLevel.ShowResponses])
+               .Execute(20)
+               //.Batch(null, null, 1000)
+               ;
 
             //new Tests.GetTransaction()
             //   .Disable()
@@ -182,6 +184,8 @@ namespace StratisRpc
             //   .GetSpecificTransaction("8fd79542c5c3291fff653050b7ee36692d29290d62e1069089a9cd95a1c0be1b", 5)
             //   .GetSpecificTransaction("9fd79542c5c3291fff653050b7ee36692d29290d62e1069089a9cd95a1c0be1b", 5)
             //   .Wait();
+
+            TestExecutor.DumpSummary(verbosityLevel.Writer, verbosityLevel.TimeFormatter);
         }
     }
 }

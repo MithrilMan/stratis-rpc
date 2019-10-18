@@ -40,68 +40,68 @@ namespace StratisRpc.Tests
             new Tests.GetBlockCount()
                 .SetOptions(this.options)
                 .Execute(5)
-                //.Batch()
+                .Batch()
                 .Wait(waitBetweenTests);
 
             new Tests.GetTransaction()
                 .SetOptions(this.options)
                 .Execute(5)
-                //.Batch()
+                .Batch()
                 .Wait(waitBetweenTests);
 
             new Tests.GetRawTransaction()
                 .SetOptions(this.options)
                 .Execute(5)
-                //.Batch()
+                .Batch()
                 .Wait(waitBetweenTests);
 
             new Tests.DecodeRawTransaction()
                 .SetOptions(this.options)
                 .Execute(5)
-                //.Batch()
+                .Batch()
                 .Wait(waitBetweenTests);
 
             new Tests.ValidateAddress()
                 .SetOptions(this.options)
                 .Execute(5)
-                //.Batch()
+                .Batch()
                 .Wait(waitBetweenTests);
 
             new Tests.GetBlockHash()
                 .SetOptions(this.options)
                 .Execute(5)
-                //.Batch()
+                .Batch()
                 .Wait(waitBetweenTests);
 
             new Tests.GetBlock()
                 .SetOptions(this.options)
                 .Execute(5)
-                //.Batch()
+                .Batch()
                 .Wait(waitBetweenTests);
 
             new Tests.GetBalance()
                 .SetOptions(this.options)
                 .Execute(5)
-                //.Batch()
+                .Batch()
                 .Wait(waitBetweenTests);
 
             new Tests.ListUnspent()
                 .SetOptions(this.options)
                 .Execute(5)
-                //.Batch()
+                .Batch()
                 .Wait(waitBetweenTests);
 
             new Tests.ListAddressGroupings()
                 .SetOptions(this.options)
                 .Execute(5)
-                //.Batch()
+                .Batch()
                 .Wait(waitBetweenTests);
 
-            new Tests.SendMany()
-                .SetOptions(this.options)
-                .Execute(5)
-                //.Batch()
-                .Wait(waitBetweenTests);
+            //new Tests.SendMany()
+            //    .SetOptions(this.options)
+            //    .Execute(5)
+            //    //.Batch()
+            //    .Wait(waitBetweenTests);
 
             return this;
         }
