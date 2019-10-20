@@ -71,16 +71,12 @@ namespace StratisRpc.Tests
 
             this.rawUnspentTxHex = this.unspentTxIds.Take(20).Select(txId =>
             {
-                return ParseResponse<GetTransactionResponse>(new CallRequest.GetTransaction(txId, false)).Hex;
+                return ParseResponse<string>(new CallRequest.GetRawTransaction(txId, 0, null));
             }).ToList();
             this.writer.WriteLine($"{"Loaded Raw unspent tx Hex".AlignLeft(labelColumnWidth)}{this.rawUnspentTxHex.Count}");
 
             this.writer.WriteLine($"Unlocking wallet for {WALLET_UNLOCK_TIMEOUT} seconds");
-            TestExecutor.CallNTimes(
-                service => new GenericCall("walletpassphrase", ("passphrase", service.WalletPassword), ("timeout", WALLET_UNLOCK_TIMEOUT)),
-                1,
-                PerformanceCollectorOptions.Disabled
-                );
+            this.rpcService.CallSingle(new GenericCall("walletpassphrase", ("passphrase", this.rpcService.WalletPassword), ("timeout", WALLET_UNLOCK_TIMEOUT)));
 
             this.writer
                 .DrawLine('.')

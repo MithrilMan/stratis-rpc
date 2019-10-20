@@ -52,6 +52,9 @@ namespace StratisRpc
 
             [Option('d', "time-decimals", Required = false, Default = 0, HelpText = "Specify the number of decimal digits to include when displaying time informations.")]
             public int TimeDecimals { get; set; }
+
+            [Option('k', "import-keys", Required = false, MetaValue = "filename", HelpText = "Specify the path to the file containing keys to be imported on an X node.")]
+            public string ImportKeysFromFile { get; set; }
         }
 
         static void Main(string[] args)
@@ -133,9 +136,12 @@ namespace StratisRpc
             IPEndPoint rpcUrlSbfnLocal = getEndPoint("localhost", settings.rpcPort);
 
             TestExecutor.SetupServices(new OutputWriter(),
-              // new RestClientRpcService("X Node", rpcUrlX, settings.rpcUser, settings.rpcPassword, settings.walletPassword, settings.timeout),
-              //new RestClientRpcService("SBFN", rpcUrlSbfn, settings.rpcUser, settings.rpcPassword, settings.walletPassword, settings.timeout),
-              new RestClientRpcService("SBFN Local", rpcUrlSbfnLocal, settings.rpcUser, settings.rpcPassword, settings.walletPassword, settings.timeout)
+                // new RestClientRpcService("X Node", rpcUrlX, settings.rpcUser, settings.rpcPassword, settings.walletPassword, settings.timeout),
+                //new RestClientRpcService("SBFN", rpcUrlSbfn, settings.rpcUser, settings.rpcPassword, settings.walletPassword, settings.timeout),
+
+                new RestClientRpcService("X Node Docker", getEndPoint("nodemccx", settings.rpcPort), settings.rpcUser, settings.rpcPassword, settings.walletPassword, settings.timeout),
+                new RestClientRpcService("SBFN Docker", getEndPoint("nodemaa", settings.rpcPort), settings.rpcUser, settings.rpcPassword, settings.walletPassword, settings.timeout)
+                //new RestClientRpcService("SBFN Local", rpcUrlSbfnLocal, settings.rpcUser, settings.rpcPassword, settings.walletPassword, settings.timeout)
             );
         }
 
@@ -143,8 +149,14 @@ namespace StratisRpc
         {
             Console.WriteLine($"Current Time (UTC  ---  Local): {DateTime.UtcNow}  ---  {DateTime.Now}");
 
+            if (options.ImportKeysFromFile != null)
+            {
+                ImportKeys(TestExecutor.Services.FirstOrDefault(service => service.Name.Contains("X")), options.ImportKeysFromFile);
+                return;
+            }
+
             new Tests.Scenarios()
-               //.Disable()
+               .Disable()
                .SetOptions(verbosityLevel)
                .CheckAllMethods(false)
                //.TestSendMany(10, 1)
@@ -170,8 +182,8 @@ namespace StratisRpc
             new Tests.DecodeRawTransaction()
                .Disable()
                .SetOptions(verbosityLevel)
-               //.SetOptions(verbosityLevels[VerbosityLevel.ShowResponses])
-               .Execute(20)
+               .SetOptions(verbosityLevels[VerbosityLevel.ShowResponses])
+               .Execute(10)
                //.Batch(null, null, 1000)
                ;
 
@@ -186,6 +198,57 @@ namespace StratisRpc
             //   .Wait();
 
             TestExecutor.DumpSummary(verbosityLevel.Writer, verbosityLevel.TimeFormatter);
+        }
+
+
+        internal class ImportedKey
+        {
+            public string Address { get; set; }
+            public string PrivateKey { get; set; }
+            public string Path { get; set; }
+        }
+
+        private static void ImportKeys(IRpcService service, string privateKeysFilePath)
+        {
+            verbosityLevel.Writer.WriteLine($"Importing private keys");
+            if (service == null)
+            {
+                verbosityLevel.Writer.WriteLine("No X node found to import keys into.");
+                return;
+            }
+
+            if (!File.Exists(privateKeysFilePath))
+            {
+                verbosityLevel.Writer.WriteLine($"{privateKeysFilePath} file not found.");
+            }
+
+            var keysToImport = JsonConvert.DeserializeObject<List<ImportedKey>>(File.ReadAllText(privateKeysFilePath));
+
+            verbosityLevel.Writer.WriteLine($"Found {keysToImport.Count} private keys to import.");
+
+            for (int i = 0; i < keysToImport.Count; i++)
+            {
+                var keyToImport = keysToImport[i];
+
+                var request = new GenericCall(
+                    "importprivkey",
+                    ("privkey", keyToImport.PrivateKey),
+                    ("label", keyToImport.Path),
+                    ("rescan", i == keysToImport.Count - 1)
+                    );
+
+                var result = service.CallSingle(request);
+
+                if (result.HasError)
+                    verbosityLevel.Writer.WriteLine($"importprivkey error: {result.Error}");
+            }
+
+            verbosityLevel.Writer.WriteLine($"Check if first key has been imported");
+            var dumpPrivKeyResult = service.CallSingle(new GenericCall("dumpprivkey", ("address", keysToImport.First().Address)));
+            if (dumpPrivKeyResult.HasError)
+                verbosityLevel.Writer.WriteLine($"dumpprivkey error: {dumpPrivKeyResult.Error}");
+            else
+                verbosityLevel.Writer.WriteLine($"dumpprivkey result: {dumpPrivKeyResult.Result}");
         }
     }
 }
