@@ -16,6 +16,8 @@ namespace StratisRpc.Tests
         /// </summary>
         const int MAX_RETRY = 5;
 
+        private static bool initialized = false;
+
         /// <summary>
         /// The services to test
         /// </summary>
@@ -41,6 +43,8 @@ namespace StratisRpc.Tests
                 SingleCallResults.Add(service, new TestSummary(TestData[service]));
                 BatchCallResults.Add(service, new TestSummary(TestData[service]));
             }
+
+            initialized = true;
         }
 
         public static void CallNTimes(Func<IRpcService, TestRequest> requestFactory, int count, PerformanceCollectorOptions options, TestResultCollector testResultCollector = null)
@@ -147,16 +151,22 @@ namespace StratisRpc.Tests
         }
 
 
-        public static void AddSingleCallResult(IRpcService service, string calledMethod, TimeSpan elapsed)
+        private static void AddSingleCallResult(IRpcService service, string calledMethod, TimeSpan elapsed)
         {
+            if (!initialized)
+                return;
+
             if (SingleCallResults.TryGetValue(service, out TestSummary summary))
             {
                 summary.RegisterSingleCallResult(calledMethod, elapsed);
             }
         }
 
-        public static void AddBatchCallResult(IRpcService service, string calledMethod, int batchSize, TimeSpan elapsed)
+        private static void AddBatchCallResult(IRpcService service, string calledMethod, int batchSize, TimeSpan elapsed)
         {
+            if (!initialized)
+                return;
+
             if (BatchCallResults.TryGetValue(service, out TestSummary summary))
             {
                 summary.RegisterBatchCallResult(calledMethod, batchSize, elapsed);
@@ -192,6 +202,9 @@ namespace StratisRpc.Tests
 
         private static void DumpSingleCallsSummary(OutputWriter writer, UnitOfTimeFormatter timeFormatter)
         {
+            if (SingleCallResults.Count == 0 || SingleCallResults.First().Value.Details.Count == 0)
+                return;
+
             List<IRpcService> services = SingleCallResults.Keys.ToList();
             List<string> testedMethods = SingleCallResults.First().Value.Details.Keys.ToList();
 
@@ -228,6 +241,9 @@ namespace StratisRpc.Tests
 
         private static void DumpBatchCallsSummary(OutputWriter writer, UnitOfTimeFormatter timeFormatter)
         {
+            if (BatchCallResults.Count == 0 || BatchCallResults.First().Value.Details.Count == 0)
+                return;
+
             List<IRpcService> services = BatchCallResults.Keys.ToList();
             List<string> testedMethods = BatchCallResults.First().Value.Details.Keys.ToList();
 

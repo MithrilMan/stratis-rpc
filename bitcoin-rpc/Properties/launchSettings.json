@@ -3,6 +3,10 @@
     "StratisRpc": {
       "commandName": "Project",
       "commandLineArgs": "-s results.txt -t 0 -d 4 -v 0"
+    },
+    "ImportKeys": {
+      "commandName": "Project",
+      "commandLineArgs": "-s results.txt -t 0 -d 4 -v 0 -k  \"E:\\Users\\redan\\Downloads\\response_1571427437106.json\""
     }
   }
 }

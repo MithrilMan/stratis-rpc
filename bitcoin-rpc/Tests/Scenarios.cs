@@ -40,7 +40,7 @@ namespace StratisRpc.Tests
             new Tests.GetBlockCount()
                 .SetOptions(this.options)
                 .Execute(5)
-                .Batch()
+                //.Batch()
                 .Wait(waitBetweenTests);
 
             new Tests.GetTransaction()
@@ -82,19 +82,19 @@ namespace StratisRpc.Tests
             new Tests.GetBalance()
                 .SetOptions(this.options)
                 .Execute(5)
-                .Batch()
+                //.Batch()
                 .Wait(waitBetweenTests);
 
             new Tests.ListUnspent()
                 .SetOptions(this.options)
                 .Execute(5)
-                .Batch()
+                //.Batch()
                 .Wait(waitBetweenTests);
 
             new Tests.ListAddressGroupings()
                 .SetOptions(this.options)
                 .Execute(5)
-                .Batch()
+                //.Batch()
                 .Wait(waitBetweenTests);
 
             //new Tests.SendMany()
