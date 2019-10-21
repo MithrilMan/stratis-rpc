@@ -139,11 +139,11 @@ namespace StratisRpc
                 // new RestClientRpcService("X Node", rpcUrlX, settings.rpcUser, settings.rpcPassword, settings.walletPassword, settings.timeout),
                 //new RestClientRpcService("SBFN", rpcUrlSbfn, settings.rpcUser, settings.rpcPassword, settings.walletPassword, settings.timeout),
 
-                new RestClientRpcService("X Node Docker", getEndPoint("nodemccx", settings.rpcPort), settings.rpcUser, settings.rpcPassword, settings.walletPassword, settings.timeout)
-                //new RestClientRpcService("X Node Local", getEndPoint("localhost", 16174), settings.rpcUser, settings.rpcPassword, settings.walletPassword, settings.timeout)
+                //new RestClientRpcService("X Node Docker", getEndPoint("nodemccx", settings.rpcPort), settings.rpcUser, settings.rpcPassword, settings.walletPassword, settings.timeout)
+                //new RestClientRpcService("SBFN Docker", getEndPoint("nodemaa", settings.rpcPort), settings.rpcUser, settings.rpcPassword, settings.walletPassword, settings.timeout)
 
-            //new RestClientRpcService("SBFN Docker", getEndPoint("nodemaa", settings.rpcPort), settings.rpcUser, settings.rpcPassword, settings.walletPassword, settings.timeout)
-            //new RestClientRpcService("SBFN Local", rpcUrlSbfnLocal, settings.rpcUser, settings.rpcPassword, settings.walletPassword, settings.timeout)
+                new RestClientRpcService("X Node Local", getEndPoint("localhost", 16174), settings.rpcUser, settings.rpcPassword, settings.walletPassword, settings.timeout),
+                new RestClientRpcService("SBFN Local", getEndPoint("localhost", 16175), settings.rpcUser, settings.rpcPassword, settings.walletPassword, settings.timeout)
             );
         }
 
@@ -158,7 +158,7 @@ namespace StratisRpc
             }
 
             new Tests.Scenarios()
-               .Disable()
+               //.Disable()
                .SetOptions(verbosityLevel)
                .CheckAllMethods(false)
                //.TestSendMany(10, 1)

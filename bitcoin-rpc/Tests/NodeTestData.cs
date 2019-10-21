@@ -20,7 +20,7 @@ namespace StratisRpc.Tests
         private readonly OutputWriter writer;
         private List<string> unspentTxIds;
         private List<string> addresses;
-        private List<string> rawUnspentTxHex;
+        private List<string> rawTxHex;
         private Random random;
 
         public int BlockCount { get; private set; }
@@ -35,7 +35,7 @@ namespace StratisRpc.Tests
             this.writer = writer ?? new OutputWriter();
             this.unspentTxIds = new List<string>();
             this.addresses = new List<string>();
-            this.rawUnspentTxHex = new List<string>();
+            this.rawTxHex = new List<string>();
             this.random = new Random();
 
             this.Initialize();
@@ -69,11 +69,17 @@ namespace StratisRpc.Tests
                 .ToList();
             this.writer.WriteLine($"{"Loaded UTXOs Ids".AlignLeft(labelColumnWidth)}{this.unspentTxIds.Count}");
 
-            this.rawUnspentTxHex = this.unspentTxIds.Take(20).Select(txId =>
+            this.rawTxHex = new List<string>();
+            foreach (var blockHeight in Enumerable.Range(1, 20))
             {
-                return ParseResponse<string>(new CallRequest.GetRawTransaction(txId, 0, null));
-            }).ToList();
-            this.writer.WriteLine($"{"Loaded Raw unspent tx Hex".AlignLeft(labelColumnWidth)}{this.rawUnspentTxHex.Count}");
+                var blockHash = ParseResponse<string>(new CallRequest.GetBlockHash(blockHeight));
+                var block = ParseResponse<GetBlockResponse>(new CallRequest.GetBlock(blockHash, null));
+                foreach (var txId in block.Tx)
+                {
+                    this.rawTxHex.Add(ParseResponse<string>(new CallRequest.GetRawTransaction(txId, 0, null)));
+                }
+            }
+            this.writer.WriteLine($"{"Loaded Raw Transactions tx Hex".AlignLeft(labelColumnWidth)}{this.rawTxHex.Count}");
 
             this.writer.WriteLine($"Unlocking wallet for {WALLET_UNLOCK_TIMEOUT} seconds");
             this.rpcService.CallSingle(new GenericCall("walletpassphrase", ("passphrase", this.rpcService.WalletPassword), ("timeout", WALLET_UNLOCK_TIMEOUT)));
@@ -103,10 +109,10 @@ namespace StratisRpc.Tests
 
         public string GetRawHex(int? index = null)
         {
-            int maxIndex = this.rawUnspentTxHex.Count;
+            int maxIndex = this.rawTxHex.Count;
             index = index ?? random.Next(0, maxIndex + 1);
 
-            return this.rawUnspentTxHex[index.Value % maxIndex];
+            return this.rawTxHex[index.Value % maxIndex];
         }
 
         private TResult ParseResponse<TResult>(CallRequest.TestRequest request)

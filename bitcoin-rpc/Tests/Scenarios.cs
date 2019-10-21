@@ -46,19 +46,19 @@ namespace StratisRpc.Tests
             new Tests.GetTransaction()
                 .SetOptions(this.options)
                 .Execute(5)
-                .Batch()
+                .Batch(null, null, 5, 10)
                 .Wait(waitBetweenTests);
 
             new Tests.GetRawTransaction()
                 .SetOptions(this.options)
                 .Execute(5)
-                .Batch()
+                .Batch(null, null, 10, 50)
                 .Wait(waitBetweenTests);
 
             new Tests.DecodeRawTransaction()
                 .SetOptions(this.options)
                 .Execute(5)
-                .Batch()
+                .Batch(null, null, 10, 50)
                 .Wait(waitBetweenTests);
 
             new Tests.ValidateAddress()
@@ -70,13 +70,13 @@ namespace StratisRpc.Tests
             new Tests.GetBlockHash()
                 .SetOptions(this.options)
                 .Execute(5)
-                .Batch()
+                .Batch(null, null, 10, 50)
                 .Wait(waitBetweenTests);
 
             new Tests.GetBlock()
                 .SetOptions(this.options)
                 .Execute(5)
-                .Batch()
+                .Batch(null, null, 10, 50)
                 .Wait(waitBetweenTests);
 
             new Tests.GetBalance()
