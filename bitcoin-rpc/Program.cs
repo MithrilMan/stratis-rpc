@@ -132,16 +132,18 @@ namespace StratisRpc
             };
 
             IPEndPoint rpcUrlX = getEndPoint("nodemccx", settings.rpcPort);
-            IPEndPoint rpcUrlSbfn = getEndPoint("nodemca", settings.rpcPort);
+            IPEndPoint rpcUrlSbfn = getEndPoint("nodemaa", settings.rpcPort);
             IPEndPoint rpcUrlSbfnLocal = getEndPoint("localhost", settings.rpcPort);
 
             TestExecutor.SetupServices(new OutputWriter(),
                 // new RestClientRpcService("X Node", rpcUrlX, settings.rpcUser, settings.rpcPassword, settings.walletPassword, settings.timeout),
                 //new RestClientRpcService("SBFN", rpcUrlSbfn, settings.rpcUser, settings.rpcPassword, settings.walletPassword, settings.timeout),
 
-                new RestClientRpcService("X Node Docker", getEndPoint("nodemccx", settings.rpcPort), settings.rpcUser, settings.rpcPassword, settings.walletPassword, settings.timeout),
-                new RestClientRpcService("SBFN Docker", getEndPoint("nodemaa", settings.rpcPort), settings.rpcUser, settings.rpcPassword, settings.walletPassword, settings.timeout)
-                //new RestClientRpcService("SBFN Local", rpcUrlSbfnLocal, settings.rpcUser, settings.rpcPassword, settings.walletPassword, settings.timeout)
+                new RestClientRpcService("X Node Docker", getEndPoint("nodemccx", settings.rpcPort), settings.rpcUser, settings.rpcPassword, settings.walletPassword, settings.timeout)
+                //new RestClientRpcService("X Node Local", getEndPoint("localhost", 16174), settings.rpcUser, settings.rpcPassword, settings.walletPassword, settings.timeout)
+
+            //new RestClientRpcService("SBFN Docker", getEndPoint("nodemaa", settings.rpcPort), settings.rpcUser, settings.rpcPassword, settings.walletPassword, settings.timeout)
+            //new RestClientRpcService("SBFN Local", rpcUrlSbfnLocal, settings.rpcUser, settings.rpcPassword, settings.walletPassword, settings.timeout)
             );
         }
 
@@ -234,13 +236,14 @@ namespace StratisRpc
                     "importprivkey",
                     ("privkey", keyToImport.PrivateKey),
                     ("label", keyToImport.Path),
-                    ("rescan", i == keysToImport.Count - 1)
+                    ("rescan", false) //i == keysToImport.Count - 1)
                     );
 
                 var result = service.CallSingle(request);
 
+                Console.Write($"\rImporting key {i + 1}/{keysToImport.Count}");
                 if (result.HasError)
-                    verbosityLevel.Writer.WriteLine($"importprivkey error: {result.Error}");
+                    verbosityLevel.Writer.WriteLine($"\rimportprivkey error on key {i + 1}/{keysToImport.Count}: {result.Error}");
             }
 
             verbosityLevel.Writer.WriteLine($"Check if first key has been imported");
